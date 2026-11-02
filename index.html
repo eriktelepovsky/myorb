@@ -235,16 +235,33 @@
   const bar = document.querySelector(".bar");
   let index = 0;
 
+  let view = { scale: 1, x: 0, y: 0 };
   const fit = () => {
     const scale = Math.min(innerWidth / 1920, innerHeight / 1080);
     const x = (innerWidth - 1920 * scale) / 2;
     const y = (innerHeight - 1080 * scale) / 2;
+    view = { scale, x, y };
     for (const slide of slides) slide.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    backdrop();
+  };
+
+  // The page around a slide carries on its background, so a wide or tall
+  // window shows no edge. A radial gradient is redrawn in the window's pixels.
+  const backdrop = () => {
+    const background = slides[index].style.background;
+    const radial = background.match(/radial-gradient\(circle at ([\d.]+)% ([\d.]+)%, (.+?) 0%, (.+?) ([\d.]+)%\)/);
+    if (!radial) return void (document.body.style.background = background);
+    const [, px, py, inner, outer, stop] = radial;
+    const cx = (px / 100) * 1920, cy = (py / 100) * 1080;
+    const corner = Math.hypot(Math.max(cx, 1920 - cx), Math.max(cy, 1080 - cy));
+    const r = (stop / 100) * corner * view.scale;
+    document.body.style.background = `radial-gradient(circle ${r}px at ${view.x + cx * view.scale}px ${view.y + cy * view.scale}px, ${inner} 0px, ${outer} ${r}px)`;
   };
 
   const show = (next) => {
     index = Math.max(0, Math.min(slides.length - 1, next));
     slides.forEach((slide, i) => slide.classList.toggle("is-on", i === index));
+    backdrop();
     count.textContent = `${index + 1} / ${slides.length}`;
     history.replaceState(null, "", `#${index + 1}`);
   };
