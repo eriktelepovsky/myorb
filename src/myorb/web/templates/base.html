@@ -35,7 +35,9 @@
         <a href="/integrations" {% if path.startswith("/integrations") %}aria-current="page"{% endif %}>Integrations</a>
         <a href="/settings/security" {% if path.startswith("/settings") %}aria-current="page"{% endif %}>Security</a>
       </nav>
-      {% if public_demo %}
+      {% if tour %}
+      <span class="nav topbar-end" id="demo-note" title="Nothing can be changed during the tour">Tour · a made-up day</span>
+      {% elif public_demo %}
       <a class="nav topbar-end" id="demo-note" href="https://github.com/eriktelepovsky/myorb" target="_blank" rel="noopener" title="Nothing can be changed in the public demo">Public demo · Get myOrb</a>
       {% else %}
       <form class="nav topbar-end" method="post" action="/logout" hx-boost="false">

@@ -3746,3 +3746,108 @@ button.history-hour {
 .palette-open .palette-icon {
   display: block;
 }
+
+/* The tour after setup (tour.js): driver.js's box in myOrb's colors. driver.css loads after this
+   file, so each rule names both classes to win over it. */
+.driver-popover.myorb-tour {
+  max-width: min(340px, calc(100vw - 32px));
+  padding: 18px;
+  color: var(--text-body);
+  background: var(--surface-2);
+  border: 1px solid var(--line-accent);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 55%), 0 0 0 1px rgb(79 209 232 / 8%);
+}
+
+.driver-popover.myorb-tour * {
+  font-family: var(--font-sans);
+}
+
+.driver-popover.myorb-tour .driver-popover-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.driver-popover.myorb-tour .driver-popover-description {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-body);
+}
+
+.driver-popover.myorb-tour .driver-popover-footer {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.driver-popover.myorb-tour .driver-popover-progress-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+}
+
+.driver-popover.myorb-tour .driver-popover-footer button {
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  text-shadow: none;
+  background: var(--surface-3);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+}
+
+.driver-popover.myorb-tour .driver-popover-footer .driver-popover-next-btn,
+.driver-popover.myorb-tour .driver-popover-footer .tour-primary {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.driver-popover.myorb-tour .driver-popover-footer .tour-danger {
+  color: var(--fail);
+  background: var(--fail-surface);
+  border-color: var(--fail-line);
+}
+
+/* Ending the tour is there, but quiet: it asks before it ends anything. */
+.driver-popover.myorb-tour .driver-popover-footer .tour-end {
+  order: 3;
+  flex-basis: 100%;
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-3);
+  background: none;
+  border: 0;
+}
+
+.driver-popover.myorb-tour .driver-popover-footer .tour-end:hover {
+  color: var(--text-2);
+  text-decoration: underline;
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-top {
+  border-top-color: var(--surface-2);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--surface-2);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-left {
+  border-left-color: var(--surface-2);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-right {
+  border-right-color: var(--surface-2);
+}
+
+/* driver.css hides what overflows the shown part's parent; a number's parent is a point it
+   hangs from, so the number would vanish. Only there: the screens' strip on a phone has to stay
+   a scroller. */
+.orb-widgets :has(> .driver-active-element) {
+  overflow: visible !important;
+}

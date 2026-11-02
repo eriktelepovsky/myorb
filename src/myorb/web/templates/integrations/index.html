@@ -273,4 +273,8 @@
 {% if setup_hidden %}
 <form class="setup-show" method="post" action="/integrations/setup/show"><button type="submit" class="link-btn">Show the Get started list</button></form>
 {% endif %}
+{% if not demo %}
+{# The tour of a made-up day, as after setup (tour.py). #}
+<form class="setup-show" method="post" action="/tour/start" hx-boost="false" data-tour-start><button type="submit" class="link-btn">Take the tour again</button></form>
+{% endif %}
 {% endblock %}
