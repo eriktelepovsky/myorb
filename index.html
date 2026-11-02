@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>myOrb</title>
+<meta name="description" content="myOrb: a self-hosted personal AI briefing dashboard. My whole day around one orb: email, meetings, tasks and work, summed up by AI.">
+<meta name="theme-color" content="#07090C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #07090C; color: #E6EDF3; overflow: hidden; }
+  body { font-family: 'IBM Plex Sans', Arial, sans-serif; }
+  .slide { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0; opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility .35s; }
+  .slide.is-on { opacity: 1; visibility: visible; }
+  .slide h1, .slide h2, .slide h3, .slide p, .slide ul, .slide ol { margin: 0; }
+  .slide h1 { font-size: 96px; font-weight: 600; line-height: 1.1; }
+  .slide h2 { font-size: 64px; font-weight: 600; line-height: 1.15; }
+  .slide h3 { font-size: 44px; font-weight: 600; line-height: 1.2; }
+  .slide p { font-size: 32px; line-height: 1.4; }
+  .slide img { display: block; max-width: none; }
+  .slide a { color: inherit; }
+  .slide .icon { flex: none; }
+  .bar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; align-items: center; padding: 6px; background: rgb(13 17 23 / 85%); border: 1px solid #1F2833; border-radius: 12px; font: 500 13px 'JetBrains Mono', monospace; letter-spacing: .04em; transition: opacity .4s; z-index: 2; }
+  .bar.is-idle { opacity: 0; pointer-events: none; }
+  .bar a, .bar button { color: #C9D4DE; background: none; border: 0; padding: 6px 10px; border-radius: 8px; text-decoration: none; font: inherit; cursor: pointer; }
+  .bar a:hover, .bar button:hover { background: #18212C; color: #E6EDF3; }
+  .bar .count { color: #8794A1; padding: 0 8px; min-width: 52px; text-align: center; }
+  .bar .sep { width: 1px; height: 18px; background: #1F2833; }
+  @media (max-width: 560px) { .bar .wide { display: none; } }
+  /* The PDF: one slide per page. */
+  body.print { overflow: visible; height: auto; }
+  body.print .slide { position: relative; opacity: 1; visibility: visible; transform: none !important; page-break-after: always; break-after: page; }
+  body.print .bar { display: none; }
+  @page { size: 1920px 1080px; margin: 0; }
+</style>
+</head>
+<body>
+<section class="slide" id="cover" data-transition="fade" style="background:radial-gradient(circle at 72% 50%, #0F2A31 0%, #07090C 62%);color:#E6EDF3;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:row;align-items:center;gap:72px">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1E8">Personal AI briefing dashboard</p>
+<h1 style="font-family:'Barlow Condensed', Arial, sans-serif;font-size:200px;font-weight:600;line-height:0.95;letter-spacing:2px;color:#E6EDF3">myOrb</h1>
+<p style="font-size:40px;line-height:1.3;color:#C9D4DE">My whole day around one orb: email, meetings, tasks and work, summed up by AI.</p>
+</div>
+<img src="img/welcome.jpg" alt="The myOrb welcome screen: the orb with numbers from each source, today’s schedule on the left, quick actions and activity on the right" style="width:900px;height:619px;object-fit:cover;border:1px solid #1E3A44;box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(79,209,232,0.18)">
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;color:#8794A1">Erik Telepovský</p>
+</section>
+
+<section class="slide" id="why" data-transition="fade" style="background:#0D1117;color:#E6EDF3;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1E8">Why I built it</p>
+<h2 style="font-family:'Barlow Condensed', Arial, sans-serif;font-size:96px;font-weight:600;line-height:1.05;color:#E6EDF3">Every morning started with a dozen tabs</h2>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;flex:1">
+<div style="display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;flex-direction:row;gap:30px;padding:0 0 0 0px">
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(-3deg)"><span style="color:#FF8A8A">●</span> Gmail</p>
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(2deg)"><span style="color:#7DDDF0">●</span> Calendar</p>
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(-1deg)"><span style="color:#7DDDF0">●</span> Jira</p>
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(4deg)"><span style="color:#FF8A8A">●</span> Asana</p>
+</div>
+<div style="display:flex;flex-direction:row;gap:30px;padding:0 0 0 96px">
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(-4deg)"><span style="color:#7DDDF0">●</span> Bitbucket</p>
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(1deg)"><span style="color:#F2B84B">●</span> Slack</p>
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(3deg)"><span style="color:#6EE7A0">●</span> GitHub</p>
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(-2deg)"><span style="color:#F2B84B">●</span> Uptime Kuma</p>
+</div>
+<div style="display:flex;flex-direction:row;gap:30px;padding:0 0 0 32px">
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(2deg)"><span style="color:#7DDDF0">●</span> Weather</p>
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(-3deg)"><span style="color:#FF8A8A">●</span> YouTube</p>
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(3deg)"><span style="color:#F2B84B">●</span> Strava</p>
+<p style="font-size:36px;color:#C9D4DE;background:#121821;border:1px solid #2A3644;border-radius:14px;padding:16px 30px;transform:rotate(-2deg)"><span style="color:#FF8A8A">●</span> Apple Health</p>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:row;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:2px solid #F2B84B;padding:20px 0 0 0">
+<h3 style="font-size:36px;font-weight:600;color:#E6EDF3">Too many tools</h3>
+<p style="font-size:28px;line-height:1.35;color:#9AA7B4">A dozen tabs just to see what today holds.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:2px solid #F2B84B;padding:20px 0 0 0">
+<h3 style="font-size:36px;font-weight:600;color:#E6EDF3">A brief from AI</h3>
+<p style="font-size:28px;line-height:1.35;color:#9AA7B4">Read it all, tell me what matters first.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:2px solid #F2B84B;padding:20px 0 0 0">
+<h3 style="font-size:36px;font-weight:600;color:#E6EDF3">My own J.A.R.V.I.S.</h3>
+<p style="font-size:28px;line-height:1.35;color:#9AA7B4">An assistant like Tony Stark’s.</p>
+</div>
+</div>
+</section>
+
+<section class="slide" id="what" data-transition="fade" style="background:radial-gradient(circle at 70% 50%, #0F2A31 0%, #07090C 58%);color:#E6EDF3;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:row;align-items:center;gap:72px">
+<div style="flex:1;display:flex;flex-direction:column;gap:36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1E8">The heart of it</p>
+<h2 style="font-family:'Barlow Condensed', Arial, sans-serif;font-size:96px;font-weight:600;line-height:1.05;color:#E6EDF3">The orb: my day at a glance</h2>
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> One number per source around the assistant: meetings, email, tasks, pull requests, Jira…</p>
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#F2B84B">▲</span> Bigger, and marked, when something needs me.</p>
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> A click opens what is behind it, with actions: Done, Mark as read, Approve.</p>
+</div>
+</div>
+<img src="img/orb-clean.png" alt="The orb: J.A.R.V.I.S. in the middle, with numbers around it for events, tasks, unread email, pull requests, finance, Jira, mentions, incidents, sleep and videos; pull requests, finance and Jira are bigger and marked with a warning" style="width:820px;height:797px;object-fit:contain">
+</section>
+
+<section class="slide" id="brief" data-transition="fade" style="background:#07090C;color:#E6EDF3;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:row;align-items:center;gap:72px">
+<div style="flex:1;display:flex;flex-direction:column;gap:36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1E8">Every morning</p>
+<h2 style="font-family:'Barlow Condensed', Arial, sans-serif;font-size:96px;font-weight:600;line-height:1.05;color:#E6EDF3">The daily brief</h2>
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> Written by AI from all my sources, at the time I choose.</p>
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> What needs me first, the day at a glance, what changed since yesterday.</p>
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> Free blocks for focus, and read aloud while I get ready.</p>
+</div>
+</div>
+<img src="img/report-dialog2.jpg" alt="The daily brief: the day at a glance, a summary, what needs me and each source with its change since yesterday" style="width:960px;height:717px;object-fit:contain;box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(79,209,232,0.12)">
+</section>
+
+<section class="slide" id="ask" data-transition="fade" style="background:#07090C;color:#E6EDF3;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:row;align-items:center;gap:72px">
+<div style="flex:1;display:flex;flex-direction:column;gap:36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1E8">During the day</p>
+<h2 style="font-family:'Barlow Condensed', Arial, sans-serif;font-size:96px;font-weight:600;line-height:1.05;color:#E6EDF3">Just ask</h2>
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> Typed or spoken questions about my day, answered from the dashboard.</p>
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> It acts once I confirm: adds tasks, drafts replies, blocks focus time, approves PRs.</p>
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> Most of what it does can be undone.</p>
+</div>
+</div>
+<img src="img/ask-dialog2.jpg" alt="Ask: the assistant plans the rest of the day from the dashboard and offers to add a task, waiting for a yes" style="width:762px;height:822px;object-fit:contain;box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(79,209,232,0.12)">
+</section>
+
+<section class="slide" id="search" data-transition="fade" style="background:#07090C;color:#E6EDF3;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:row;align-items:center;gap:72px">
+<div style="flex:1;display:flex;flex-direction:column;gap:36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1E8">From anywhere</p>
+<h2 style="font-family:'Barlow Condensed', Arial, sans-serif;font-size:96px;font-weight:600;line-height:1.05;color:#E6EDF3">Search everything</h2>
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> ⌘K or Ctrl+K finds any email, event, task, pull request or issue.</p>
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> Enter opens it right in its details.</p>
+<p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> Runs commands too, and asks J.A.R.V.I.S. what matches nothing.</p>
+</div>
+</div>
+<img src="img/palette.png" alt="The search palette: typing Pepper finds the lunch with her, a task, her email, a pull request and a Slack message, and offers to ask J.A.R.V.I.S." style="width:900px;height:529px;object-fit:contain;box-shadow:0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(79,209,232,0.12)">
+</section>
+
+<section class="slide" id="integrations" data-transition="fade" style="background:#0D1117;color:#E6EDF3;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:64px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1E8">Integrations</p>
+<h2 style="font-family:'Barlow Condensed', Arial, sans-serif;font-size:96px;font-weight:600;line-height:1.05;color:#E6EDF3">What it connects to</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px">
+<div style="display:flex;flex-direction:column;gap:20px;background:#121821;border:1px solid #1F2833;border-radius:20px;padding:40px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px">
+<div style="display:flex;align-items:center;justify-content:center;width:64px;height:64px;background:#1F180A;border:1px solid #4D3B17;border-radius:14px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#F2B84B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg></div>
+<h3 style="font-size:36px;font-weight:600;color:#F2B84B">Google</h3>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#C9D4DE">Gmail · Calendar · YouTube · Routes for commutes</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#121821;border:1px solid #1F2833;border-radius:20px;padding:40px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px">
+<div style="display:flex;align-items:center;justify-content:center;width:64px;height:64px;background:#1F180A;border:1px solid #4D3B17;border-radius:14px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#F2B84B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px" aria-hidden="true"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg></div>
+<h3 style="font-size:36px;font-weight:600;color:#F2B84B">Work</h3>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#C9D4DE">GitHub · GitLab · Bitbucket · Jira · Asana · Slack</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#121821;border:1px solid #1F2833;border-radius:20px;padding:40px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px">
+<div style="display:flex;align-items:center;justify-content:center;width:64px;height:64px;background:#1F180A;border:1px solid #4D3B17;border-radius:14px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#F2B84B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4"/></svg></div>
+<h3 style="font-size:36px;font-weight:600;color:#F2B84B">AI</h3>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#C9D4DE">Claude · OpenAI · Gemini · Mistral · Ollama · LM Studio</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#121821;border:1px solid #1F2833;border-radius:20px;padding:40px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px">
+<div style="display:flex;align-items:center;justify-content:center;width:64px;height:64px;background:#1F180A;border:1px solid #4D3B17;border-radius:14px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#F2B84B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+<h3 style="font-size:36px;font-weight:600;color:#F2B84B">Uptime</h3>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#C9D4DE">Website checks every minute · Uptime Kuma</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#121821;border:1px solid #1F2833;border-radius:20px;padding:40px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px">
+<div style="display:flex;align-items:center;justify-content:center;width:64px;height:64px;background:#1F180A;border:1px solid #4D3B17;border-radius:14px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#F2B84B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></div>
+<h3 style="font-size:36px;font-weight:600;color:#F2B84B">Life</h3>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#C9D4DE">Weather · Apple Health · Strava · built-in tasks</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#121821;border:1px solid #1F2833;border-radius:20px;padding:40px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:20px">
+<div style="display:flex;align-items:center;justify-content:center;width:64px;height:64px;background:#1F180A;border:1px solid #4D3B17;border-radius:14px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#F2B84B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+<h3 style="font-size:36px;font-weight:600;color:#F2B84B">Your own apps</h3>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#C9D4DE">Custom sources and plugins, e.g. invoicing or spending</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:56px;width:1664px;height:40px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;font-family:'IBM Plex Sans', Arial, sans-serif">
+<div style="display:flex;flex-direction:row;align-items:center;gap:32px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:10px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#4FD1E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg><p style="font-size:24px;white-space:nowrap;color:#9AA7B4">Self-hosted</p></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:10px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#4FD1E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px" aria-hidden="true"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg><p style="font-size:24px;white-space:nowrap;color:#9AA7B4">Open source</p></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:10px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#4FD1E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px" aria-hidden="true"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></svg><p style="font-size:24px;white-space:nowrap;color:#9AA7B4">Passkeys</p></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:10px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#4FD1E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg><p style="font-size:24px;white-space:nowrap;color:#9AA7B4">Phone app</p></div>
+</div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:32px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:10px"><svg aria-label="GitHub" width="24" height="24" viewBox="0 0 24 24" style="width:32px;height:32px"><path fill="#E6EDF3" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg><p style="font-size:24px;white-space:nowrap;color:#C9D4DE"><a href="https://github.com/eriktelepovsky/myorb">github.com/eriktelepovsky/myorb</a></p></div>
+<div style="display:flex;flex-direction:row;align-items:center;gap:10px"><svg aria-label="PyPI" width="24" height="24" viewBox="0 0 24 24" style="width:32px;height:32px"><path fill="#F2B84B" d="M23.922 13.58v3.912L20.55 18.72l-.078.055.052.037 3.45-1.256.026-.036v-3.997l-.053-.036-.025.092z M23.621 5.618l-3.04 1.107v3.912l3.339-1.215V5.509zM23.92 13.457V9.544l-3.336 1.215v3.913zM20.47 14.71V10.8L17.17 12v3.913zM17.034 19.996v-3.912l-3.313 1.206v3.912zM17.17 16.057v3.868l3.314-1.206V14.85l-3.314 1.206zm2.093 1.882c-.367.134-.663-.074-.663-.463s.296-.814.663-.947c.365-.133.662.075.662.464s-.297.814-.662.946z M13.225 9.315l.365-.132-3.285-1.197-3.323 1.21.102.037 3.184 1.16zM20.507 10.664V6.751L17.17 7.965v3.913zM17.058 11.918V8.005l-3.302 1.202v3.912zM13.643 9.246l-3.336 1.215v3.913l3.336-1.215zM6.907 13.165l3.322 1.209v-3.913L6.907 9.252z M10.34 7.873l3.281 1.193V5.198l-3.28-1.193zM20.507 2.715L17.19 3.922v3.913l3.317-1.207zM16.95 3.903L13.724 2.73l-3.269 1.19 3.225 1.174zM15.365 4.606l-1.624.592v3.868l3.317-1.207V3.991l-1.693.615zm-.391 2.778c-.367.134-.662-.074-.662-.464s.295-.813.662-.946c.366-.133.663.074.663.464s-.297.813-.663.946z M10.229 18.41v-3.914l-3.322-1.209V17.2zM13.678 17.182v-3.913l-3.371 1.227v3.913z M13.756 17.154l3.3-1.2V12.04l-3.3 1.2zM13.678 21.217l-3.371 1.227v-3.912h-.078v3.912l-3.322-1.209v-3.913l-.053-.058-.025-.06-3.336-1.21v-3.948l.034.013 3.287 1.196.015-.078-3.261-1.187 3.26-1.187v-.109L3.876 9.62l-.307-.112 3.26-1.188v.877l.079-.055V6.769l3.257 1.185.058-.061L7.084 6.75l-.102-.037 3.24-1.179v-.083L6.854 6.677v.018l-.025.018v1.523L3.44 9.47v.02l-.025.017v4.007l-3.39 1.233v.019L0 14.784v3.995l.025.037 3.4 1.237.008-.006.007.01 3.4 1.238.008-.006.006.01 3.4 1.237.014-.009.012.01 3.45-1.256.026-.037-.078-.027zM3.493 9.563l3.257 1.185-3.257 1.187V9.562zM3.4 19.96L.078 18.752v-3.913l2.361.86.96.349v3.913zm.015-3.99L.335 14.85l-.182-.066 3.262-1.187v2.374zm3.399 5.231l-3.321-1.209v-3.912l3.321 1.209v3.912zM23.791 5.434l-3.21-1.17v2.338zM20.387 2.643l-3.24-1.18-3.27 1.19 3.247 1.182z"/></svg><p style="font-size:24px;white-space:nowrap;color:#C9D4DE"><a href="https://pypi.org/project/myorb/">pypi.org/project/myorb</a></p></div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="demo" data-transition="fade" style="background:#4FD1E8;color:#04141A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:row;align-items:center;gap:96px">
+<div style="flex:1;display:flex;flex-direction:column;gap:36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B3A44">Demo</p>
+<h1 style="font-family:'Barlow Condensed', Arial, sans-serif;font-size:200px;font-weight:600;line-height:0.95;color:#04141A">Let’s see it live</h1>
+<p style="font-size:40px;line-height:1.3;color:#0B3A44">Try it yourself: <b>myorb-demo.telepovsky.sk</b></p>
+</div>
+<img src="img/phone-signout.jpg" alt="myOrb on a phone: search, the orb with its numbers, the command line and the bar to switch to Today or Activity" style="width:370px;height:800px;object-fit:cover;border-radius:40px;border:2px solid #04141A;box-shadow:0 30px 60px rgba(4,20,26,0.35)">
+</section>
+
+<nav class="bar" aria-label="Presentation">
+  <button type="button" data-step="-1" aria-label="Previous slide">←</button>
+  <span class="count" aria-live="polite"></span>
+  <button type="button" data-step="1" aria-label="Next slide">→</button>
+  <span class="sep"></span>
+  <a href="https://myorb-demo.telepovsky.sk/">Demo</a>
+  <a href="/pdf/">PDF</a>
+  <a class="wide" href="https://github.com/eriktelepovsky/myorb">GitHub</a>
+  <button type="button" class="wide" data-fullscreen aria-label="Full screen (F)">⛶</button>
+</nav>
+<script>
+(() => {
+  if (document.body.classList.contains("print")) return;
+  const slides = [...document.querySelectorAll(".slide")];
+  const count = document.querySelector(".bar .count");
+  const bar = document.querySelector(".bar");
+  let index = 0;
+
+  const fit = () => {
+    const scale = Math.min(innerWidth / 1920, innerHeight / 1080);
+    const x = (innerWidth - 1920 * scale) / 2;
+    const y = (innerHeight - 1080 * scale) / 2;
+    for (const slide of slides) slide.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+  };
+
+  const show = (next) => {
+    index = Math.max(0, Math.min(slides.length - 1, next));
+    slides.forEach((slide, i) => slide.classList.toggle("is-on", i === index));
+    count.textContent = `${index + 1} / ${slides.length}`;
+    history.replaceState(null, "", `#${index + 1}`);
+  };
+
+  // The bar shows while the pointer moves, and hides when it rests.
+  let idle;
+  const wake = () => {
+    bar.classList.remove("is-idle");
+    clearTimeout(idle);
+    idle = setTimeout(() => bar.classList.add("is-idle"), 2500);
+  };
+
+  const fullscreen = () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen?.();
+  };
+
+  addEventListener("keydown", (event) => {
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    const step = { ArrowRight: 1, ArrowDown: 1, PageDown: 1, " ": 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1 }[event.key];
+    if (step) { event.preventDefault(); show(index + step); }
+    else if (event.key === "Home") show(0);
+    else if (event.key === "End") show(slides.length - 1);
+    else if (event.key === "f" || event.key === "F") fullscreen();
+  });
+  addEventListener("click", (event) => {
+    const step = event.target.closest("[data-step]");
+    if (step) return show(index + Number(step.dataset.step));
+    if (event.target.closest("[data-fullscreen]")) return fullscreen();
+    if (event.target.closest("a, .bar")) return;
+    show(index + (event.clientX > innerWidth / 3 ? 1 : -1));
+  });
+  let touch = null;
+  addEventListener("touchstart", (event) => { touch = event.touches[0].clientX; }, { passive: true });
+  addEventListener("touchend", (event) => {
+    const dx = event.changedTouches[0].clientX - (touch ?? 0);
+    if (Math.abs(dx) > 50) show(index + (dx < 0 ? 1 : -1));
+    touch = null;
+  });
+  addEventListener("resize", fit);
+  addEventListener("mousemove", wake);
+  fit();
+  show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+  wake();
+})();
+</script>
+</body>
+</html>
