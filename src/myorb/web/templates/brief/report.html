@@ -8,7 +8,7 @@
   </div>
   {% if brief %}
   <div class="report-voice">
-    <button type="button" class="btn" data-read-aloud data-brief="{{ brief.id }}" data-brief-language="{{ brief.language }}" data-voice="{{ 'azure' if voice.azure else 'browser' }}" aria-pressed="false" title="Voices are set on Integrations → Voice">▶ Read aloud</button>
+    <button type="button" class="btn" data-read-aloud data-brief="{{ brief.id }}" data-brief-language="{{ brief.language }}" data-voice="{{ 'azure' if voice.azure else 'browser' }}"{% if public_demo %} data-voice-fallback{% endif %} aria-pressed="false" title="Voices are set on Integrations → Voice">▶ Read aloud</button>
     <label class="label voice-picker">In <select class="input" data-read-language aria-label="Language to read in">
       {% for code, (name, tag) in read_languages.items() %}<option value="{{ code }}" data-tag="{{ tag }}" {% if code == brief.language %}selected{% endif %}>{{ name }}</option>{% endfor %}
     </select></label>
