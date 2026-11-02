@@ -86,6 +86,11 @@
       text: "The questions you ask often, one click away, asking by voice, and what changed lately in your sources.",
     },
     {
+      element: "#media-dock .dock-controls",
+      title: "Music while you work",
+      text: "Ambient music made on the spot, or any YouTube video or playlist you find with the magnifier. Beside it, the volume of the music and of the interface sounds, and the sounds on or off.",
+    },
+    {
       element: "[data-palette-open]",
       title: "Search everything",
       text: "Find any email, event, task or pull request, and run commands. ⌘K or Ctrl+K opens it from anywhere.",
