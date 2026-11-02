@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The orb</title>
+<link rel="stylesheet" href="orb/style.css">
+<link rel="stylesheet" href="orb/welcome.css">
+<style>
+  /* The orb alone, as on the welcome screen of myOrb's demo, on a clear background. */
+  html, body { margin: 0; height: 100%; background: transparent !important; overflow: hidden; }
+  .welcome { min-height: 0; height: 100%; display: block; overflow: visible; background: none; }
+  .frame { position: absolute; left: 50%; top: 50%; width: 688px; height: 688px; transform-origin: 0 0; }
+  .frame .orb { --d: 576px; --r: calc(var(--d) * 0.41); --n: calc(var(--d) * 0.15); position: absolute; left: PA576px; top: PA576px; }
+</style>
+</head>
+<body>
+<div class="welcome" id="welcome" style="--orb-hue: 0deg">
+<div class="frame">
+<div class="orb">
+        <span class="ring" style="inset: 0; border-width: 1px; border-color: #16323a"></span>
+        <div class="ticks spin-rev" aria-hidden="true"></div>
+        <span class="ring spin-fast" style="inset: 6%; border-width: 2px; border-color: var(--accent) transparent transparent transparent; opacity: 0.8"></span>
+        <span class="ring spin-rev" style="inset: 9%; border-width: 1px; border-color: transparent #f2b84b transparent transparent; opacity: 0.7"></span>
+        <span class="ring spin" style="inset: 18%; border-width: 1px; border-color: #2e5560; border-style: dashed"></span>
+        <span class="ring" style="inset: 21%; border-width: 1px; border-color: var(--line-accent)"></span>
+
+        <div class="cloud" aria-hidden="true">
+          <div class="glow"></div>
+          <svg class="layer layer-back" viewBox="-100 -100 200 200"><path data-orb="backLines" fill="none" stroke="#4fd1e8" stroke-opacity=".22" stroke-width=".22"></path><path data-orb="backDots" fill="none" stroke="#4fd1e8" stroke-opacity=".55" stroke-width=".9" stroke-linecap="round"></path></svg>
+          <svg class="layer layer-front" viewBox="-100 -100 200 200"><path data-orb="frontLines" fill="none" stroke="#6fdcef" stroke-opacity=".4" stroke-width=".25"></path><path data-orb="frontDots" fill="none" stroke="#8be7f5" stroke-opacity=".95" stroke-width="1.25" stroke-linecap="round"></path><path data-orb="hotDots" fill="none" stroke="#e8fbfe" stroke-width="2.2" stroke-linecap="round"></path></svg>
+          <svg class="layer layer-signals" viewBox="-100 -100 200 200"><path data-orb="trails" fill="none" stroke="#a8eef8" stroke-opacity=".8" stroke-width=".55" stroke-linecap="round"></path><path data-orb="flashOld" fill="none" stroke="#a8eef8" stroke-opacity=".7" stroke-width="1.25" stroke-linecap="round"></path><path data-orb="flashNew" fill="none" stroke="#e8fbfe" stroke-width="1.25" stroke-linecap="round"></path><path data-orb="heads" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round"></path></svg>
+        </div>
+
+        <div class="core">
+          <span class="label core-status"><span class="live-dot" aria-hidden="true"></span><span id="core-status">Online · 10/10 sources</span></span>
+          <span class="core-name" style="--chars: 12">J.A.R.V.I.S.</span>
+          <span class="muted core-line" id="core-line">All systems nominal</span>
+          <div class="core-brief">
+<span class="muted core-line brief-headline">Three things need you before 09:00.</span>
+
+<button type="button" class="full-report label" data-open-report="">Daily brief →</button></div>
+        </div>
+
+        
+        <div id="orb-widgets" class="orb-widgets is-placed">
+          
+          <div class="slot" data-slot="" data-angle="0deg">
+
+
+<div class="place" style="--angle: 0deg; --delay: 0ms;" data-placed="">
+  <button type="button" class="node has-ring" style="--s: 1.125; --ring-time: 300s; --ring-delay: 0s;" data-size="1.0" data-number="4" data-key="calendar-today" data-refresh="300" data-age="0.0" data-has-value="true" data-needs="false" data-title="Calendar" data-problem="" data-tone="info" data-sfx="" aria-label="4 Events. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4"></path></svg>
+    <span class="node-value">4</span>
+    <span class="node-label">Events</span>
+    
+  </button>
+</div>
+</div>
+          
+          <div class="slot" data-slot="" data-angle="33.438237608182526deg">
+
+
+<div class="place" style="--angle: 33.438237608182526deg; --delay: 70ms;" data-placed="">
+  <button type="button" class="node has-ring" style="--s: 1.0; --ring-time: 300s; --ring-delay: 0s;" data-size="1.0" data-number="2" data-key="tasks-open" data-refresh="300" data-age="0" data-has-value="true" data-needs="false" data-title="Tasks" data-problem="" data-tone="info" data-sfx="" aria-label="2 Tasks. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l2 2 4-4M4 17l2 2 4-4M14 7h6M14 17h6"></path></svg>
+    <span class="node-value">2</span>
+    <span class="node-label">Tasks</span>
+    
+  </button>
+</div>
+</div>
+          
+          <div class="slot" data-slot="" data-angle="68.05664830841856deg">
+
+
+<div class="place" style="--angle: 68.05664830841856deg; --delay: 140ms;" data-placed="">
+  <button type="button" class="node has-ring" style="--s: 1.200; --ring-time: 300s; --ring-delay: 0s;" data-size="1.0" data-number="12" data-key="demo-unread" data-refresh="300" data-age="0.0" data-has-value="true" data-needs="false" data-title="Email" data-problem="" data-tone="info" data-sfx="" aria-label="12 Unread. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"></path></svg>
+    <span class="node-value">12</span>
+    <span class="node-label">Unread</span>
+    
+  </button>
+</div>
+</div>
+          
+          <div class="slot" data-slot="" data-angle="108.73328088119588deg">
+
+
+<div class="place" style="--angle: 108.73328088119588deg; --delay: 210ms;" data-placed="">
+  <button type="button" class="node warn has-ring" style="--s: 1.385; --ring-time: 300s; --ring-delay: 0s;" data-size="1.25" data-number="3" data-key="demo-prs" data-refresh="300" data-age="0.0" data-has-value="true" data-needs="false" data-title="Pull requests" data-problem="" data-tone="info" data-sfx="" aria-label="3 PRs. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 1 0 4 0a2 2 0 1 0-4 0M4 19a2 2 0 1 0 4 0a2 2 0 1 0-4 0M16 19a2 2 0 1 0 4 0a2 2 0 1 0-4 0M6 7v10M18 17V9a3 3 0 0 0-3-3h-4M13 4l-2 2 2 2"></path></svg>
+    <span class="node-value">3</span>
+    <span class="node-label">PRs</span>
+    <span class="node-warn" aria-hidden="true">▲</span>
+  </button>
+</div>
+</div>
+          
+          <div class="slot" data-slot="" data-angle="150.1966955153422deg">
+
+
+<div class="place" style="--angle: 150.1966955153422deg; --delay: 280ms;" data-placed="">
+  <button type="button" class="node warn has-ring" style="--s: 1.250; --ring-time: 300s; --ring-delay: 0s;" data-size="1.25" data-number="" data-key="demo-finance" data-refresh="300" data-age="0.0" data-has-value="true" data-needs="false" data-title="Finance" data-problem="" data-tone="info" data-sfx="" aria-label="€1.8k Finance. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"></path></svg>
+    <span class="node-value">€1.8k</span>
+    <span class="node-label">Finance</span>
+    <span class="node-warn" aria-hidden="true">▲</span>
+  </button>
+</div>
+</div>
+          
+          <div class="slot" data-slot="" data-angle="192.73013375295042deg">
+
+
+<div class="place" style="--angle: 192.73013375295042deg; --delay: 350ms;" data-placed="">
+  <button type="button" class="node warn has-ring" style="--s: 1.453; --ring-time: 300s; --ring-delay: 0s;" data-size="1.25" data-number="7" data-key="demo-jira" data-refresh="300" data-age="0.0" data-has-value="true" data-needs="false" data-title="Jira" data-problem="" data-tone="info" data-sfx="" aria-label="7 Jira. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM9 4v16M15 4v16M11 8h2M5.5 8h2"></path></svg>
+    <span class="node-value">7</span>
+    <span class="node-label">Jira</span>
+    <span class="node-warn" aria-hidden="true">▲</span>
+  </button>
+</div>
+</div>
+          
+          <div class="slot" data-slot="" data-angle="232.68292682926827deg">
+
+
+<div class="place" style="--angle: 232.68292682926827deg; --delay: 420ms;" data-placed="">
+  <button type="button" class="node has-ring" style="--s: 1.086; --ring-time: 300s; --ring-delay: 0s;" data-size="1.0" data-number="2" data-key="demo-mentions" data-refresh="300" data-age="0.0" data-has-value="true" data-needs="false" data-title="Slack" data-problem="" data-tone="info" data-sfx="" aria-label="2 Mentions. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 12a4 4 0 1 1-8 0a4 4 0 1 1 8 0M16 12v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-3.5 7.1"></path></svg>
+    <span class="node-value">2</span>
+    <span class="node-label">Mentions</span>
+    
+  </button>
+</div>
+</div>
+          
+          <div class="slot" data-slot="" data-angle="262.360346184107deg">
+
+
+<div class="place" style="--angle: 262.360346184107deg; --delay: 490ms;" data-placed="">
+  <button type="button" class="node has-ring" style="--s: 0.800; --ring-time: 300s; --ring-delay: 0s;" data-size="0.8" data-number="0" data-key="demo-uptime" data-refresh="300" data-age="0.0" data-has-value="true" data-needs="false" data-title="Uptime" data-problem="" data-tone="info" data-sfx="" aria-label="0 Incidents. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"></path></svg>
+    <span class="node-value">0</span>
+    <span class="node-label">Incidents</span>
+    
+  </button>
+</div>
+</div>
+          
+          <div class="slot" data-slot="" data-angle="290.68450039339103deg">
+
+
+<div class="place" style="--angle: 290.68450039339103deg; --delay: 560ms;" data-placed="">
+  <button type="button" class="node has-ring" style="--s: 1.000; --ring-time: 300s; --ring-delay: 0s;" data-size="1.0" data-number="" data-key="demo-sleep" data-refresh="300" data-age="0.0" data-has-value="true" data-needs="false" data-title="Sleep" data-problem="" data-tone="info" data-sfx="" aria-label="7h24 Sleep. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"></path></svg>
+    <span class="node-value">7h24</span>
+    <span class="node-label">Sleep</span>
+    
+  </button>
+</div>
+</div>
+          
+          <div class="slot" data-slot="" data-angle="324.3587726199843deg">
+
+
+<div class="place" style="--angle: 324.3587726199843deg; --delay: 630ms;" data-placed="">
+  <button type="button" class="node has-ring" style="--s: 1.140; --ring-time: 300s; --ring-delay: 0s;" data-size="1.0" data-number="5" data-key="demo-videos" data-refresh="300" data-age="0.0" data-has-value="true" data-needs="false" data-title="YouTube" data-problem="" data-tone="info" data-sfx="" aria-label="5 Videos. Show details" data-sized="">
+    <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18v14H3zM10 9l5 3-5 3Z"></path></svg>
+    <span class="node-value">5</span>
+    <span class="node-label">Videos</span>
+    
+  </button>
+</div>
+</div>
+          
+        </div>
+      </div>
+</div>
+</div>
+<script>
+(() => {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // The welcome screen's own orb (myOrb's welcome.js), unchanged.
+  function buildOrb() {
+    let seed = 20261021;
+    const random = () => {
+      seed |= 0;
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const points = [];
+    for (let i = 0; i < 850; i++) {
+      const u = random() * 2 - 1;
+      const theta = random() * Math.PI * 2;
+      const shell = random() < 0.6;
+      const radius = shell ? 94 * (0.9 + 0.1 * random()) : 94 * Math.pow(random(), 0.75);
+      const q = Math.sqrt(1 - u * u);
+      const amplitude = 2 + random() * 5;
+      points.push({
+        x: radius * q * Math.cos(theta), y: radius * u, z: radius * q * Math.sin(theta),
+        ax: amplitude * (random() * 2 - 1), ay: amplitude * (random() * 2 - 1), az: amplitude * (random() * 2 - 1),
+        fx: 0.25 + random() * 0.9, fy: 0.25 + random() * 0.9, fz: 0.25 + random() * 0.9,
+        px: random() * 6.283, py: random() * 6.283, pz: random() * 6.283,
+      });
+    }
+    const edges = [];
+    const maxDistance = 15 * 15;
+    points.forEach((a, i) => {
+      const near = [];
+      for (let j = i + 1; j < points.length; j++) {
+        const b = points[j];
+        const d2 = (a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2;
+        if (d2 < maxDistance) near.push({ j, d2 });
+      }
+      near.sort((m, n) => m.d2 - n.d2);
+      for (let k = 0; k < Math.min(3, near.length); k++) edges.push([i, near[k].j]);
+    });
+    const neighbors = points.map(() => []);
+    edges.forEach(([i, j]) => {
+      neighbors[i].push(j);
+      neighbors[j].push(i);
+    });
+    return { points, edges, neighbors };
+  }
+
+  const orb = { model: null, angle: 0.6, time: 0, signals: [], flashes: [], paths: {} };
+
+  function stepSignals() {
+    const { neighbors } = orb.model;
+    const pick = (list) => list[Math.floor(Math.random() * list.length)];
+    const signals = orb.signals;
+    for (let k = signals.length - 1; k >= 0; k--) {
+      const signal = signals[k];
+      signal.p += signal.v;
+      if (signal.p < 1) continue;
+      orb.flashes.push({ n: signal.b, age: 0 });
+      const next = neighbors[signal.b].filter((n) => n !== signal.a);
+      if (next.length && signal.hops < 8 && Math.random() < 0.82) {
+        signals[k] = { a: signal.b, b: pick(next), p: 0, v: signal.v, hops: signal.hops + 1 };
+        if (Math.random() < 0.12 && next.length > 1) {
+          signals.push({ a: signal.b, b: pick(next), p: 0, v: signal.v * 0.9, hops: signal.hops + 2 });
+        }
+      } else {
+        signals.splice(k, 1);
+      }
+    }
+    let tries = 0;
+    while (signals.length < 14 && tries++ < 50) {
+      const a = Math.floor(Math.random() * neighbors.length);
+      if (!neighbors[a].length) continue;
+      signals.push({ a, b: pick(neighbors[a]), p: 0, v: 0.018 + Math.random() * 0.02, hops: 0 });
+      orb.flashes.push({ n: a, age: 0 });
+    }
+    for (let k = orb.flashes.length - 1; k >= 0; k--) {
+      orb.flashes[k].age += 1;
+      if (orb.flashes[k].age > 16) orb.flashes.splice(k, 1);
+    }
+  }
+
+  function drawOrb() {
+    const { points, edges } = orb.model;
+    const ca = Math.cos(orb.angle);
+    const sa = Math.sin(orb.angle);
+    const tilt = 0.38;
+    const ct = Math.cos(tilt);
+    const st = Math.sin(tilt);
+    const t = orb.time;
+    const projected = points.map((p) => {
+      const x = p.x + p.ax * Math.sin(t * p.fx + p.px);
+      const y = p.y + p.ay * Math.sin(t * p.fy + p.py);
+      const z = p.z + p.az * Math.sin(t * p.fz + p.pz);
+      const x1 = x * ca + z * sa;
+      const z1 = -x * sa + z * ca;
+      return { x: x1, y: y * ct - z1 * st, z: y * st + z1 * ct };
+    });
+    const f = (n) => n.toFixed(1);
+    const dot = (p) => `M${f(p.x)} ${f(p.y)}h.01`;
+    const d = { backDots: "", frontDots: "", hotDots: "", backLines: "", frontLines: "", trails: "", heads: "", flashNew: "", flashOld: "" };
+    projected.forEach((p, i) => {
+      if (p.z < 0) {
+        d.backDots += dot(p);
+      } else {
+        d.frontDots += dot(p);
+        if (i % 29 === 0) d.hotDots += dot(p);
+      }
+    });
+    edges.forEach(([i, j]) => {
+      const a = projected[i];
+      const b = projected[j];
+      const line = `M${f(a.x)} ${f(a.y)}L${f(b.x)} ${f(b.y)}`;
+      if (a.z + b.z < 0) d.backLines += line;
+      else d.frontLines += line;
+    });
+    orb.signals.forEach((s) => {
+      const a = projected[s.a];
+      const b = projected[s.b];
+      const x = a.x + (b.x - a.x) * s.p;
+      const y = a.y + (b.y - a.y) * s.p;
+      d.trails += `M${f(a.x)} ${f(a.y)}L${f(x)} ${f(y)}`;
+      d.heads += `M${f(x)} ${f(y)}h.01`;
+    });
+    orb.flashes.forEach((flash) => {
+      const p = projected[flash.n];
+      if (flash.age < 6) d.flashNew += dot(p);
+      else d.flashOld += dot(p);
+    });
+    for (const [name, value] of Object.entries(d)) {
+      orb.paths[name]?.setAttribute("d", value);
+    }
+  }
+
+
+  const frame = document.querySelector(".frame");
+  const fit = () => {
+    const scale = Math.min(innerWidth, innerHeight) / 688;
+    frame.style.transform = `scale(${scale}) translate(-50%, -50%)`;
+  };
+  addEventListener("resize", fit);
+  fit();
+  document.querySelectorAll("[data-orb]").forEach((path) => { orb.paths[path.dataset.orb] = path; });
+  orb.model = buildOrb();
+  drawOrb();
+  if (!reducedMotion) setInterval(() => {
+    if (document.hidden) return;
+    stepSignals();
+    orb.angle = (orb.angle + 0.006) % (Math.PI * 2);
+    orb.time += 0.05;
+    drawOrb();
+  }, 50);
+})();
+</script>
+</body>
+</html>

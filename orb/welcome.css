@@ -1,0 +1,3873 @@
+/* Welcome screen: the orb with numbers around it, today's schedule and the header controls.
+   Follows "6 · Welcome — after sign-in" in the myOrb design. */
+
+body:has(#welcome) {
+  background: #06080b;
+}
+
+.welcome {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.welcome > header,
+.welcome > main,
+.welcome > footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Background: halo, wall grid, horizon glow, moving floor grid, vignette, corner ticks */
+
+.bgl {
+  position: absolute;
+  pointer-events: none;
+}
+
+.halo {
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgb(25 78 95 / 50%) 0, rgb(14 40 52 / 35%) 24%, transparent 52%),
+    radial-gradient(ellipse at 50% 120%, rgb(35 75 92 / 30%), transparent 60%);
+}
+
+.wall {
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(79 209 232 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(79 209 232 / 5%) 1px, transparent 1px);
+  background-position: center;
+  background-size: 64px 64px;
+  mask: radial-gradient(ellipse 85% 80% at 50% 50%, #000 0, rgb(0 0 0 / 50%) 50%, transparent 90%);
+}
+
+.horizon {
+  right: 0;
+  bottom: 30%;
+  left: 0;
+  height: 180px;
+  background: radial-gradient(ellipse 50% 45% at 50% 50%, rgb(79 209 232 / 17%), transparent 70%);
+}
+
+.floor {
+  right: -30%;
+  bottom: -12%;
+  left: -30%;
+  height: 56%;
+  background-image:
+    linear-gradient(rgb(79 209 232 / 26%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(79 209 232 / 26%) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform: perspective(520px) rotateX(74deg);
+  transform-origin: 50% 100%;
+  mask: linear-gradient(to top, #000 0, rgb(0 0 0 / 70%) 38%, transparent 86%);
+  animation: floor 5s linear infinite;
+}
+
+@keyframes floor {
+  to { background-position: 0 60px, 0 0; }
+}
+
+.vignette {
+  inset: 0;
+  background: radial-gradient(ellipse 90% 85% at 50% 50%, transparent 65%, rgb(0 0 0 / 45%) 100%);
+}
+
+.corner {
+  width: 30px;
+  height: 30px;
+  border: 0 solid rgb(79 209 232 / 60%);
+}
+
+.corner-tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+.corner-tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+.corner-bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+.corner-br { right: 12px; bottom: 12px; border-width: 0 2px 2px 0; }
+
+/* Header */
+
+.welcome-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;
+  /* Installed on a phone, the page runs under the status bar: keep clear of it. */
+  padding: max(26px, var(--safe-top)) 28px 8px;
+}
+
+.header-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 22px;
+  min-height: 12px;
+}
+
+.header-nav {
+  --nav-space: 14px;
+
+  display: flex;
+  gap: calc(2 * var(--nav-space) + 3px);
+  align-items: center;
+}
+
+/* A faint dot between items, so the uppercase, widely spaced words do not run together. It
+   sits in the gap, outside the item, so only the word itself is a link. */
+.header-nav > * + * {
+  position: relative;
+}
+
+.header-nav > * + *::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(-1 * var(--nav-space) - 3px);
+  width: 3px;
+  height: 3px;
+  margin-top: -1.5px;
+  background: var(--line-accent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.header-nav form {
+  display: flex;
+  align-items: center;
+}
+
+/* One line height for links, the Sign out button and the panels, so their text lines up. */
+.header-nav a,
+.header-nav button,
+.header-item {
+  line-height: 1;
+}
+
+.header-nav a,
+.header-nav button {
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-3);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.header-nav a:hover,
+.header-nav button:hover {
+  color: var(--accent);
+}
+
+.header-item {
+  font-size: 12px;
+  color: var(--text-strong);
+}
+
+.header-item .dim {
+  color: var(--text-3);
+}
+
+.header-item.warn {
+  color: var(--warn);
+}
+
+/* What needs attention (from the header): each source's problem and its fix */
+
+.modal.attention-modal {
+  width: min(640px, calc(100% - 48px));
+  height: fit-content;
+  max-height: calc(100vh - 64px);
+}
+
+.attention-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  overflow-y: auto;
+}
+
+.attention-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--warn);
+  border-radius: 10px;
+}
+
+.attention-item.is-fail {
+  border-left-color: var(--fail);
+}
+
+.attention-text {
+  display: flex;
+  flex: 1 1 280px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: 13.5px;
+}
+
+.attention-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.clock {
+  position: relative;
+  text-align: right;
+}
+
+.clock .num {
+  font-size: 56px;
+  letter-spacing: 0.02em;
+}
+
+.clock-seconds {
+  font-size: 30px;
+  color: var(--text-3);
+}
+
+.clock-date {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 17px;
+  color: var(--neutral);
+}
+
+/* Out of the flow, so the header (and with it the greeting and the orb) keeps its height. */
+.clock-extra {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  white-space: nowrap;
+}
+
+/* A chip, so the next event does not read as part of the date. The line box is trimmed to
+   the capital letters, so with equal padding the uppercase text sits exactly in the middle. */
+.clock-extra .header-item {
+  display: inline-block;
+  padding: 7px 10px;
+  line-height: 1;
+  text-box: trim-both cap alphabetic;
+  background: rgb(79 209 232 / 6%);
+  border: 1px solid var(--line-accent);
+  border-radius: 6px;
+}
+
+.clock-extra .header-item::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  /* Centered on the capital letters. */
+  vertical-align: calc(0.5cap - 3px);
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.clock-extra .header-item .dim {
+  color: var(--accent);
+}
+
+/* Main grid: schedule, orb, right column */
+
+.welcome-main {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr) minmax(260px, 340px);
+  gap: 28px;
+  align-items: center;
+  /* As much room below as the header takes above, so the orb sits in the middle of the screen. */
+  padding: 0 28px 90px;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.side-left {
+  padding-right: 24px;
+  border-right: 1px solid rgb(79 209 232 / 12%);
+}
+
+.side-right {
+  /* Room for the mic's glow, which the column (clipping its events) would cut. */
+  padding-left: 28px;
+  border-left: 1px solid rgb(79 209 232 / 12%);
+}
+
+.side-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.side-head:first-child {
+  margin-top: 0;
+}
+
+.label.strong {
+  color: var(--text-strong);
+}
+
+.t1 {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.t2 {
+  display: block;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--text-2);
+}
+
+.ti {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 10px;
+  padding: 4px 0;
+  color: var(--text);
+}
+
+a.ti:hover .t1 {
+  color: var(--accent);
+}
+
+.ti .tt {
+  padding-top: 1px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-2);
+}
+
+.ti .tx {
+  min-width: 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--accent);
+}
+
+.ti.past,
+.ti.ignored {
+  opacity: 0.5;
+}
+
+/* An event the user ignores: grey, its colour gone, but still there. */
+.ti.ignored .tx {
+  border-left-color: var(--text-3);
+}
+
+.ti.travel .tx {
+  border-left: 2px dotted var(--warn);
+}
+
+.ti.travel .t1,
+.next-leave-soon {
+  color: var(--warn);
+}
+
+.ti.lunch .tx {
+  border-left: 2px dashed var(--text-3);
+}
+
+.ti.lunch .t1 {
+  color: var(--text-2);
+}
+
+.ti.focus .tx {
+  border-left: 2px dashed var(--ok);
+}
+
+.ti.focus .t1 {
+  color: var(--ok);
+}
+
+.ti.now .tt {
+  color: var(--fail);
+}
+
+.ti.now .tx {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+}
+
+.ti.now .tx::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgb(255 138 138 / 70%);
+}
+
+/* Narrower than the three columns: three screens side by side, the orb in the middle, the
+   day to its left and actions and activity to its right; swiped between (they snap) or chosen
+   in the bar below them. */
+.panes-nav {
+  display: none;
+}
+
+@media (max-width: 1279px) {
+  .welcome-main {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 0 90px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .welcome-main::-webkit-scrollbar {
+    display: none;
+  }
+
+  .welcome-main > * {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+
+  /* Each screen keeps the full width to snap to; the column inside stays readable. */
+  .side-left,
+  .side-right {
+    box-sizing: border-box;
+    padding-block: 8px;
+    /* At least the mic's glow wide: the screen scrolls, and cuts what passes its edge. */
+    padding-inline: max(28px, calc((100% - 520px) / 2));
+    border: 0;
+  }
+
+  /* Where the screen is tall enough, the welcome screen keeps to it, as on a desktop: the
+     orb in the middle, the corners in view, and a long day or activity scrolls on its own. */
+  @media (min-height: 561px) {
+    .welcome {
+      height: 100svh;
+    }
+
+    .welcome-main {
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    .stage {
+      justify-content: center;
+    }
+
+    /* Within the main, so it wins over the activity column's own overflow: hidden. */
+    .welcome-main > .side-left,
+    .welcome-main > .side-right {
+      max-height: 100%;
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+      scrollbar-width: none;
+    }
+  }
+
+  /* The bar of screens takes the hint's place at the bottom. */
+  .welcome-footer {
+    visibility: hidden;
+  }
+
+  .panes-nav {
+    position: fixed;
+    bottom: max(14px, var(--safe-bottom, 0px));
+    left: 50%;
+    z-index: 15;
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    background: rgb(7 9 12 / 82%);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transform: translateX(-50%);
+    backdrop-filter: blur(8px);
+  }
+
+  .panes-nav button {
+    padding: 7px 12px;
+    color: var(--text-3);
+    background: none;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .panes-nav button.is-on {
+    color: var(--accent);
+    background: var(--accent-surface);
+  }
+}
+
+/* Beside the orb, the columns can be taller than the window (a long schedule, many
+   priorities): the screen keeps to the window, with its footer and corners, and such a
+   column scrolls on its own. */
+@media (min-width: 1280px) and (min-height: 561px) {
+  .welcome {
+    height: 100vh;
+  }
+
+  .welcome-main {
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .side {
+    max-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+
+  /* The day's column also takes some of the room the orb keeps below it, as much more as it
+     takes above, so it stays in the middle between the menu and the corner with the version,
+     and a full day keeps more of what follows in view. */
+  .welcome-main > .side-left {
+    max-height: calc(100% + 64px);
+    margin-block: -32px;
+  }
+}
+
+.welcome-footer {
+  padding: 0 0 8px;
+  font-size: 9.5px;
+  text-align: center;
+}
+
+/* The running version, inside the bottom-left corner bracket. */
+.welcome-version {
+  position: absolute;
+  bottom: 22px;
+  left: 24px;
+  z-index: 1;
+  font-size: 9.5px;
+  text-transform: none;
+}
+
+/* The orb */
+
+/* The orb is centered on its own; the greeting sits just above it without pushing it down. */
+.stage {
+  --d: clamp(320px, min(calc((100vh - 360px) * 0.9), calc(100vw - 780px)), 860px);
+  --r: calc(var(--d) * 0.41);
+  --n: calc(var(--d) * 0.15);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: 0;
+}
+
+@media (max-width: 1279px) {
+  .stage { --d: min(calc((100vh - 360px) * 0.9), 88vw, 760px); }
+}
+
+.greeting {
+  margin: 0;
+  font-family: "Chakra Petch", var(--font-mono);
+  font-size: max(24px, calc(var(--d) * 0.054));
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  text-align: center;
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--d) * 0.09);
+  left: 0;
+}
+
+/* The command line under the orb */
+
+.command {
+  position: absolute;
+  top: calc(100% + var(--d) * 0.09);
+  left: 50%;
+  width: min(calc(var(--d) * 0.7), 92vw);
+  transform: translateX(-50%);
+}
+
+.command-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  height: 46px;
+  /* The microphone's circle sits as far from the edge as from the top and bottom. */
+  padding: 0 5px 0 18px;
+  background: rgb(10 18 24 / 80%);
+  border: 1px solid var(--line-accent);
+  border-radius: 23px;
+  box-shadow: 0 0 30px -14px var(--accent-glow);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.command-bar:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 34px -8px var(--accent-glow);
+}
+
+.command-prompt {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.command-bar input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-strong);
+  background: none;
+  border: 0;
+  outline: none;
+}
+
+.command-bar input::placeholder {
+  color: var(--text-3);
+}
+
+.command-key {
+  padding: 3px 7px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+.command-bar:focus-within .command-key {
+  visibility: hidden;
+}
+
+/* "Press / to type here" is for a keyboard: a phone has none. */
+@media (hover: none) and (pointer: coarse) {
+  .command-key {
+    display: none;
+  }
+}
+
+.command-voice {
+  flex: none;
+  color: var(--accent);
+}
+
+/* A circle, in the round end of the bar (over .icon-btn's corners, defined later). */
+.command-bar .command-voice {
+  border-radius: 50%;
+}
+
+/* Without the microphone (no Claude, or no speech recognition), "/" keeps off the edge. */
+.command-key:last-child,
+.command-key:has(+ .command-voice[hidden]) {
+  margin-right: 8px;
+}
+
+.command-voice.is-listening,
+.voice-mic.is-listening {
+  animation: listening 1.4s ease-in-out infinite;
+}
+
+.command-bar.is-listening {
+  border-color: var(--accent);
+  box-shadow: 0 0 34px -8px var(--accent-glow);
+}
+
+@keyframes listening {
+  50% {
+    box-shadow: 0 0 0 6px rgb(79 209 232 / 18%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .command-voice.is-listening,
+  .voice-mic.is-listening {
+    animation: none;
+  }
+}
+
+.command-result {
+  min-height: 16px;
+  margin-top: 10px;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.command-ok {
+  color: var(--ok);
+}
+
+.command-title {
+  color: var(--text-strong);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.greeting-name {
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 0 22px rgb(79 209 232 / 55%);
+}
+
+.orb {
+  position: relative;
+  flex: none;
+  width: var(--d);
+  height: var(--d);
+}
+
+.orb .ring {
+  position: absolute;
+  border-style: solid;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ticks {
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(#2e5560 0 0.7deg, transparent 0.7deg 6deg);
+  border-radius: 50%;
+  mask: radial-gradient(circle, transparent 66%, #000 66.5%, #000 69%, transparent 69.5%);
+  pointer-events: none;
+}
+
+.spin { animation: spin 140s linear infinite; }
+.spin-fast { animation: spin 40s linear infinite; }
+.spin-rev { animation: spin-reverse 70s linear infinite; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+
+.stage:hover .spin,
+.stage:focus-within .spin {
+  animation-play-state: paused;
+}
+
+.glow {
+  position: absolute;
+  inset: 8%;
+  background: radial-gradient(circle, rgb(127 227 243 / 38%) 0, rgb(79 209 232 / 16%) 30%, rgb(79 209 232 / 5%) 55%, transparent 72%);
+  border-radius: 50%;
+}
+
+.cloud {
+  position: absolute;
+  inset: 12%;
+  pointer-events: none;
+  animation: breathe 7s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% { opacity: 0.85; transform: scale(0.97); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.layer-front { filter: drop-shadow(0 0 2.5px rgb(79 209 232 / 85%)); }
+.layer-signals { filter: drop-shadow(0 0 3px rgb(127 227 243 / 95%)); }
+
+.core {
+  position: absolute;
+  inset: 24%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: radial-gradient(ellipse 58% 28% at 50% 50%, rgb(5 9 12 / 86%) 0, rgb(5 9 12 / 62%) 50%, rgb(5 9 12 / 0%) 100%);
+  border: 1px solid hsl(from rgb(30 58 68) calc(h + var(--orb-hue, 0deg)) s l / 50%);
+  border-radius: 50%;
+  animation: pulse 5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% { box-shadow: 0 0 50px -6px hsl(from rgb(79 209 232) calc(h + var(--orb-hue, 0deg)) s l / 45%); }
+  50% { box-shadow: 0 0 80px -2px hsl(from rgb(79 209 232) calc(h + var(--orb-hue, 0deg)) s l / 70%); }
+}
+
+.core-status {
+  display: flex;
+  gap: 0.6em;
+  align-items: center;
+  font-size: max(10px, calc(var(--d) * 0.016));
+  color: var(--info);
+}
+
+.core-name {
+  padding-left: 0.3em;
+  font-family: var(--font-mono);
+  /* The name is the user's: as large as "J.A.R.V.I.S.", smaller for longer names, one line. */
+  font-size: min(calc(var(--d) * 0.046), calc(var(--d) * 0.55 / var(--chars, 12)));
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  white-space: nowrap;
+  color: #fff;
+  text-shadow: 0 0 2px #05090c, 0 0 8px #05090c, 0 0 18px rgb(79 209 232 / 75%);
+}
+
+.core-line {
+  max-width: 78%;
+  font-size: max(11px, calc(var(--d) * 0.021));
+  line-height: 1.45;
+}
+
+/* Phone: after the rules it adjusts, so it wins over them. A phone on its side is short
+   rather than narrow, but takes the same header, greeting and command line; the block after
+   this one lays them out beside the orb. */
+@media (max-width: 720px), (orientation: landscape) and (max-height: 560px) {
+  /* The row opens from anywhere on it (see the details' rows): no button for it. */
+  .row-actions .row-open {
+    display: none;
+  }
+
+  /* The circles reach about 5% past the orb on each side (more for a large one with its
+     warning badge), so the orb leaves that much of the screen free. */
+  .stage { --d: min(86vw, calc(var(--screen) - 120px)); }
+
+  /* Installed on the home screen, a drag past the top or bottom bounced the whole page, which
+     looked like it scrolled. The visible height (dvh) leaves out Safari's own bars. */
+  html,
+  body {
+    overscroll-behavior: none;
+  }
+
+  .welcome {
+    min-height: var(--screen);
+  }
+
+  /* Under the status bar and the home indicator when installed (the --safe-* edges, 0 in a
+     browser tab): the corner brackets and the links keep clear of them, so the links are
+     below the status bar's blur and easy to tap. */
+  .corner-tl,
+  .corner-tr {
+    top: calc(20px + var(--safe-top));
+  }
+
+  .corner-bl,
+  .corner-br {
+    bottom: calc(12px + var(--safe-bottom));
+  }
+
+  /* Clear of the corner brackets (12px in, 30px long), so the links do not touch them. */
+  .welcome-header {
+    padding: calc(32px + var(--safe-top)) 26px 8px;
+  }
+
+  /* The clock goes under the links, full width and on one line with its date, so it neither
+     runs off the right edge nor leaves a tall gap above the orb. */
+  .header-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .clock {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    column-gap: 12px;
+    text-align: left;
+  }
+
+  .clock-date {
+    white-space: nowrap;
+  }
+
+  .clock .num {
+    font-size: 34px;
+  }
+
+  .clock-seconds {
+    font-size: 18px;
+  }
+
+  .clock-date {
+    margin-top: 0;
+  }
+
+  /* On a phone there is little room: the greeting goes back in the flow above the orb. */
+  /* The circles at the top and bottom of the ring reach past the orb (a large one by about
+     6% of it), so the space above and below grows with the orb. */
+  .greeting {
+    position: static;
+    margin-bottom: calc(var(--d) * 0.08);
+  }
+
+  /* The menu's links on one line, each in one piece, spread across the screen: every item
+     after the first takes an equal share of the room left, with its dot in the middle of it. */
+  .header-line {
+    width: 100%;
+  }
+
+  .header-nav {
+    flex: 1;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .header-nav > * + * {
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-nav > * + *::before {
+    position: static;
+    margin: 0 auto;
+  }
+
+  .header-nav a,
+  .header-nav button {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  /* As wide as the orb above it. */
+  .command {
+    position: static;
+    width: min(var(--d), 100%);
+    margin: calc(var(--d) * 0.1) auto 0;
+    transform: none;
+  }
+
+  /* On a phone the header stacks anyway; keep the chip in the flow so it cannot overlap. */
+  .clock-extra {
+    position: static;
+    flex-basis: 100%;
+    min-width: 0;
+    margin-top: 8px;
+  }
+
+  /* A long event title ends in "…" instead of widening the page. */
+  .clock-extra .header-item {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .welcome-main {
+    padding: 0 8px 6px;
+  }
+
+  /* The version goes centered under the footer's hint, between the corner brackets. */
+  .welcome-footer {
+    padding-bottom: calc(40px + var(--safe-bottom));
+  }
+
+  .welcome-version {
+    bottom: calc(22px + var(--safe-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+/* With the bar of screens at the bottom, the version sits above it, under the command line:
+   on the orb's screen only, as the day and the activity run down to the bar. */
+@media (max-width: 1279px) {
+  .welcome-version {
+    bottom: calc(max(14px, var(--safe-bottom, 0px)) + 54px);
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity 0.2s ease;
+  }
+
+  .welcome[data-pane="0"] .welcome-version,
+  .welcome[data-pane="2"] .welcome-version {
+    opacity: 0;
+  }
+}
+
+/* A phone on its side: the screen is too short for the header, greeting, orb and command line
+   one under another (the orb shrank to a dot), so the orb takes the whole height on the right
+   and the rest stacks on the left. The main and the stage step aside (display: contents) so
+   the greeting and the command line can sit in the left column. Clear of the notch, which is
+   on a side now. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .welcome {
+    /* The bottom corner brackets' distance from the edge, clear of the home indicator. */
+    --edge-bottom: max(12px, var(--safe-bottom));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto 1fr auto auto auto 1fr auto;
+    grid-template-areas:
+      "header orb"
+      ". orb"
+      "greeting orb"
+      "command orb"
+      "panes orb"
+      ". orb"
+      "footer orb";
+    column-gap: 24px;
+    height: var(--screen);
+    padding: 0 max(20px, env(safe-area-inset-right)) 0 max(0px, env(safe-area-inset-left));
+  }
+
+  .welcome-main,
+  .stage {
+    display: contents;
+  }
+
+  /* The bar of screens under the command line. On the right, the day, the orb and the
+     activity are one strip, as upright: side by side in the same place, moved together
+     (welcome.js), each cut to the right half so none passes over the clock. */
+
+  .panes-nav {
+    position: static;
+    grid-area: panes;
+    justify-self: start;
+    margin: 16px 0 0 26px;
+    transform: none;
+  }
+
+  .side {
+    /* Above the background's glow and vignette, as the orb is: not dimmed by them. */
+    position: relative;
+    z-index: 1;
+    display: flex;
+    grid-area: orb;
+    box-sizing: border-box;
+    /* As wide as the orb with its circles, so the left column keeps its width (see .orb). */
+    width: calc(var(--orb-d) * 1.12);
+    max-height: var(--screen);
+    padding: max(26px, var(--safe-top)) 26px max(20px, var(--safe-bottom)) 28px;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+    /* Scrolled, its content fades out under the top and bottom edges, clear of the corners. */
+    mask-image: linear-gradient(
+      transparent 0,
+      transparent calc(max(26px, var(--safe-top)) - 14px),
+      #000 max(26px, var(--safe-top)),
+      #000 calc(100% - max(20px, var(--safe-bottom))),
+      transparent calc(100% - max(20px, var(--safe-bottom)) + 14px)
+    );
+  }
+
+  .orb,
+  .side {
+    will-change: transform;
+  }
+
+  .welcome[data-pane] .welcome-version {
+    opacity: 1;
+  }
+
+
+  /* The circles reach about 5% past the orb (a large one with its badge a little more). The
+     day and the activity in its place take its size too. */
+  .welcome { --orb-d: min(calc(var(--screen) - 64px), 44vw); }
+  .stage { --d: var(--orb-d); }
+
+  .welcome-header {
+    grid-area: header;
+    padding: max(26px, var(--safe-top)) 0 0 26px;
+  }
+
+  /* Narrower than the screen, so the links stay on one line each. */
+  .header-nav {
+    --nav-space: 10px;
+
+    white-space: nowrap;
+  }
+
+  /* Clear of the next-event chip above even when the header is tall (an alert above the
+     clock) and the free row between them has no height left. */
+  .greeting {
+    grid-area: greeting;
+    margin: 20px 0;
+    padding-left: 26px;
+    font-size: 28px;
+    text-align: left;
+  }
+
+  .command {
+    grid-area: command;
+    width: 100%;
+    margin: 0;
+    padding-left: 26px;
+  }
+
+  .command-result {
+    text-align: left;
+  }
+
+  .orb {
+    grid-area: orb;
+    align-self: center;
+    margin: 0 calc(var(--d) * 0.06);
+  }
+
+  .corner-tl,
+  .corner-tr {
+    top: 12px;
+  }
+
+  /* Above the home indicator, and the hint and version with them (see below). */
+  .corner-bl,
+  .corner-br {
+    bottom: var(--edge-bottom);
+  }
+
+  .corner-tl,
+  .corner-bl {
+    left: max(12px, env(safe-area-inset-left));
+  }
+
+  .corner-tr,
+  .corner-br {
+    right: max(12px, env(safe-area-inset-right));
+  }
+
+  /* The hint and the version under it, in the bottom-left corner bracket. */
+  .welcome-footer {
+    grid-area: footer;
+    padding: 0 0 calc(var(--edge-bottom) + 28px) 26px;
+    text-align: left;
+  }
+
+  .welcome-version {
+    bottom: calc(var(--edge-bottom) + 10px);
+    left: calc(max(0px, env(safe-area-inset-left)) + 26px);
+    transform: none;
+  }
+}
+
+/* Numbers around the orb */
+
+/* Registered, so a circle moves round the ring and changes size gradually. */
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --s {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+.orb-widgets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.place {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform: rotate(var(--angle)) translateY(calc(-1 * var(--r))) rotate(calc(-1 * var(--angle)));
+}
+
+.node {
+  --sz: calc(var(--n) * var(--s, 1));
+
+  position: absolute;
+  top: calc(var(--sz) / -2);
+  left: calc(var(--sz) / -2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  width: var(--sz);
+  height: var(--sz);
+  padding: 0;
+  font: inherit;
+  color: var(--text);
+  background: #0b141a;
+  border: 1.5px solid #2e5560;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.node:hover,
+.node[aria-expanded="true"] {
+  background: var(--accent-surface);
+  border-color: var(--accent);
+}
+
+.node[aria-expanded="true"] {
+  border-width: 2px;
+  box-shadow: 0 0 24px -2px rgb(79 209 232 / 60%);
+}
+
+.node:focus-visible {
+  border-radius: 50%;
+  outline-offset: 3px;
+}
+
+.node.warn {
+  border-color: #8a6a2a;
+}
+
+.node-icon {
+  flex: none;
+  width: calc(var(--sz) * 0.2);
+  height: calc(var(--sz) * 0.2);
+  margin-bottom: 1px;
+  color: var(--accent);
+}
+
+.node.warn .node-icon {
+  color: var(--warn);
+}
+
+.node-value {
+  font-family: var(--font-num);
+  font-size: calc(var(--sz) * 0.3);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.node-label {
+  max-width: 88%;
+  font-family: var(--font-mono);
+  font-size: max(7px, calc(var(--sz) * 0.09));
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.node-warn {
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  color: var(--warn);
+  background: var(--warn-surface);
+  border: 1px solid var(--warn);
+  border-radius: 50%;
+}
+
+/* Details dialog */
+
+/* Every dialog has the same size, so the previous/next buttons stay in place when switching;
+   long lists scroll inside the body. */
+.modal {
+  /* All details dialogs share one size, so moving between them (← →) does not jump; tall
+     enough that most lists need no scrolling. */
+  --modal-height: min(1040px, calc(100vh - 64px));
+
+  /* Wide enough for four numbers side by side, e.g. "3 h 30 m" of focus time, on one line. */
+  width: min(1180px, calc(100% - 48px));
+  height: var(--modal-height);
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  color: var(--text);
+  background: #0b0f14;
+  border: 1px solid var(--line-accent);
+  border-radius: var(--r-dialog);
+  box-shadow: 0 30px 80px -20px rgb(0 0 0 / 85%), 0 0 60px -22px rgb(79 209 232 / 45%);
+  /* The dialogs live inside .orb-widgets, which lets clicks through to the orb. */
+  pointer-events: auto;
+}
+
+.modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal::backdrop {
+  background: rgb(3 6 8 / 74%);
+  backdrop-filter: blur(6px);
+}
+
+.modal::before,
+.modal::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid var(--accent);
+  pointer-events: none;
+}
+
+.modal::before {
+  top: 0;
+  left: 0;
+  border-width: 2px 0 0 2px;
+  border-top-left-radius: var(--r-dialog);
+}
+
+.modal::after {
+  right: 0;
+  bottom: 0;
+  border-width: 0 2px 2px 0;
+  border-bottom-right-radius: var(--r-dialog);
+}
+
+.modal-head {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.modal-head h2 {
+  font-size: 20px;
+}
+
+.modal-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.tile {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--accent);
+  background: var(--accent-surface);
+  border: 1px solid var(--line-accent);
+  border-radius: var(--r-card);
+}
+
+.tile.warn {
+  color: var(--warn);
+  background: var(--warn-surface);
+  border-color: var(--warn-line);
+}
+
+.icon-btn {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--text-body);
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.modal-body {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  gap: 28px;
+  align-content: start;
+  min-height: 0;
+  padding: 22px;
+  overflow-y: auto;
+}
+
+.modal-summary {
+  /* Stays in view while the list next to it scrolls, so its numbers can filter the list. */
+  position: sticky;
+  top: 0;
+  align-self: start;
+  /* No taller than the dialog's body, so a long list of repositories scrolls on its own. */
+  max-height: calc(var(--modal-height) - 190px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Phone: after the rules it adjusts, so it wins over them (before them, the summary stayed
+   sticky and covered the list). */
+@media (max-width: 760px) {
+  /* Clear of the status bar and the home indicator when installed, so the close button is
+     not under the Dynamic Island. */
+  .modal {
+    --modal-height: calc(var(--screen) - 32px - var(--safe-top) - var(--safe-bottom));
+
+    width: calc(100% - 24px);
+    margin: calc(16px + var(--safe-top)) auto calc(16px + var(--safe-bottom));
+  }
+
+  .modal-head {
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  /* A title longer than its line ends in "…" rather than breaking word by word. */
+  .modal-title > * {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Only the close button on a phone: refreshing and stepping through the details with the
+     arrows are for a desktop, and without them the title keeps a line of its own width. The
+     keyboard hint in the footer goes too. A new brief is pulled for, as are the details. */
+  .modal-head .refresh-btn,
+  .modal-head .brief-generate,
+  .modal-head [data-counter],
+  .modal-head [data-step],
+  .modal-keys {
+    display: none;
+  }
+
+  .modal-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    padding: 16px;
+  }
+
+  /* One column on a phone: the summary scrolls away rather than covering the list. */
+  .modal-summary {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+.modal-stats {
+  display: grid;
+  /* Three or four numbers side by side. */
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 8px;
+}
+
+.modal-stat {
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.stat-num {
+  font-size: 24px;
+}
+
+.stat-label {
+  margin-top: 4px;
+  font-size: 9.5px;
+}
+
+/* A number on one line where there is room; on a phone a long one ("3 h 30 m") may wrap. */
+@media (min-width: 761px) {
+  .modal-stat .num {
+    white-space: nowrap;
+  }
+}
+
+button.modal-stat {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.modal-stat:hover {
+  border-color: var(--line-accent);
+}
+
+button.modal-stat[aria-pressed="true"] {
+  background: rgb(79 209 232 / 8%);
+  border-color: var(--accent);
+}
+
+.modal-row[hidden] {
+  display: none;
+}
+
+.list-search {
+  width: 100%;
+  height: 34px;
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+
+.list-empty {
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.group-list > .label {
+  margin-bottom: 6px;
+}
+
+.group-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.group-item:hover {
+  background: rgb(255 255 255 / 3%);
+}
+
+.group-item[aria-pressed="true"] {
+  background: rgb(79 209 232 / 8%);
+  border-color: var(--line-accent);
+}
+
+.group-item.group-sub {
+  padding-left: 26px;
+  font-size: 12.5px;
+  color: var(--text-2, #c9d4de);
+}
+
+/* The groups folded into one line on a phone (below). */
+.group-toggle {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .group-head {
+    display: none;
+  }
+
+  .group-toggle {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+    padding: 9px 12px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  .group-toggle .group-current {
+    flex: 1;
+  }
+
+  .group-caret {
+    color: var(--text-3);
+    transition: transform 0.15s;
+  }
+
+  .group-list.is-open .group-caret {
+    transform: rotate(90deg);
+  }
+
+  .group-list:not(.is-open) > .group-item {
+    display: none;
+  }
+
+  /* The numbers lower, all on one line. */
+  .modal-stat {
+    padding: 7px 10px;
+  }
+
+  .stat-num {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    margin-top: 2px;
+    font-size: 8.5px;
+  }
+}
+
+.group-count {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.list-head {
+  margin-bottom: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+/* The search is the list's head then: no line between it and the first row. */
+.list-head:has(~ .list-search) {
+  border-bottom: 0;
+}
+
+.list-empty + .modal-row {
+  border-top: 0;
+}
+
+/* On a phone the details are one column: one line from edge to edge sets the list apart from
+   the numbers above it. */
+@media (max-width: 760px) {
+  .list-head {
+    margin: 0 -16px 4px;
+    padding: 16px 16px 8px;
+    border-top: 1px solid var(--line);
+    border-bottom: 0;
+  }
+
+  .list-head + .modal-row {
+    border-top: 0;
+  }
+}
+
+/* An ignored event in the calendar's details: grey, but its button to count it again is not. */
+.modal-row[data-tags~="ignored"] > :not(.row-actions) {
+  opacity: 0.5;
+}
+
+/* Today's free time for focus, lunch and the ways to the events, in their colours as in the
+   side panel: a dashed line before them. */
+.modal-row:is([data-tags~="focus"], [data-tags~="lunch"], [data-tags~="travel"]) {
+  padding-left: 12px;
+  border-left: 2px dashed var(--ok);
+}
+
+.modal-row[data-tags~="focus"] .trunc:first-child {
+  color: var(--ok);
+}
+
+.modal-row[data-tags~="lunch"] {
+  border-left-color: var(--text-3);
+}
+
+.modal-row[data-tags~="lunch"] .trunc:first-child {
+  color: var(--text-2);
+}
+
+.modal-row[data-tags~="travel"] {
+  border-left-style: dotted;
+  border-left-color: var(--warn);
+}
+
+.modal-row[data-tags~="travel"] .trunc:first-child {
+  color: var(--warn);
+}
+
+.modal-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+/* A row that opens as a whole (an email): its title's link covers it, its buttons stay above. */
+.modal-row.is-link {
+  position: relative;
+}
+
+.row-link {
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.row-link::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border-radius: var(--r-control);
+}
+
+.modal-row.is-link:hover .row-link .trunc:first-child {
+  color: var(--accent);
+}
+
+.row-link:focus-visible {
+  outline: none;
+}
+
+.row-link:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.modal-row.is-link .row-actions {
+  position: relative;
+  z-index: 1;
+}
+
+/* A page over the details (an email): the details' size, its own scroll; beside it the
+   previous and next one, reached by swiping sideways, a line between them. */
+.page-swipe {
+  position: relative;
+  display: flex;
+  gap: 1px;
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  background: var(--line);
+}
+
+.page-swipe::-webkit-scrollbar {
+  display: none;
+}
+
+.page-swipe > * {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.page-view {
+  --view-pad: 22px;
+  --view-top: 22px;
+
+  min-height: 0;
+  padding: var(--view-top) var(--view-pad) 28px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  background: #0b0f14;
+  transition: opacity 0.15s ease;
+}
+
+/* Spaced as on the email's own page, where the page lays its parts out with a gap. */
+.page-view > :not(:first-child) {
+  margin-top: 14px;
+}
+
+/* Its head sticks to the very top of the window, over the padding, from edge to edge. */
+.page-view .email-top {
+  top: calc(-1 * var(--view-top));
+  margin: calc(-1 * var(--view-top)) calc(-1 * var(--view-pad)) 0;
+  padding: var(--view-top) var(--view-pad) 14px;
+  background: #0b0f14;
+  border-bottom: 1px solid var(--line);
+}
+
+/* The email itself runs from edge to edge of the window. */
+.page-view .email-message {
+  max-width: none;
+  margin-inline: calc(-1 * var(--view-pad));
+  border-inline: 0;
+  border-radius: 0;
+}
+
+/* The first message right under the head, whose line it shares (not when a note, e.g.
+   "Marked as read", is between them: that keeps its space). */
+.page-view .email-top + .email-draft-place:empty + details.email-message {
+  margin-top: 0;
+  border-top: 0;
+}
+
+/* "Marked as read" opens up from nothing and moves the messages down with it, rather than
+   being there at once. Its negative margin takes back the space before the first message
+   until then. */
+@keyframes email-done-in {
+  from {
+    max-height: 0;
+    margin-top: 0;
+    margin-bottom: -14px;
+    padding-block: 0;
+    border-width: 0;
+    opacity: 0;
+  }
+
+  to {
+    max-height: 80px;
+  }
+}
+
+.page-view .email-done {
+  overflow: hidden;
+  animation: email-done-in 0.3s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-view .email-done {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .page-view {
+    --view-pad: 16px;
+    --view-top: 16px;
+
+    padding-bottom: 20px;
+  }
+}
+
+.page-view.is-loading {
+  opacity: 0.45;
+}
+
+.page-view:empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-view:empty::before {
+  font-size: 16px;
+  color: var(--text-2);
+  content: "Loading email…";
+}
+
+.page-view[data-none]:empty::before {
+  content: "No more emails";
+}
+
+.row-mark {
+  margin-right: 6px;
+  color: var(--warn);
+}
+
+.list-head + .modal-row {
+  border-top: 0;
+}
+
+.row-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 10px;
+  font: 500 12px var(--font-sans);
+  color: var(--text);
+  white-space: nowrap;
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-control);
+}
+
+.row-btn:hover {
+  color: var(--text);
+  background: var(--accent-surface);
+  border-color: #2e5560;
+}
+
+/* The row's link ("Open", "Edit") is its main button; actions next to it stay quiet. */
+a.row-btn {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+a.row-btn:hover {
+  color: var(--accent-ink);
+  background: #7ddcef;
+  border-color: #7ddcef;
+}
+
+.modal-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: auto;
+  padding: 14px 22px;
+  border-top: 1px solid var(--line-soft);
+}
+
+/* On a phone, in line with the head and the body. */
+@media (max-width: 760px) {
+  .modal-foot {
+    padding: 12px 16px;
+  }
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .floor,
+  .cloud,
+  .spin,
+  .spin-fast,
+  .spin-rev,
+  .core,
+  .eq.on i {
+    animation: none;
+  }
+}
+
+/* Forms and actions inside details, and checkable items in the side column */
+
+.widget-input {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.widget-input .input,
+.widget-input .btn {
+  height: 40px;
+  font-size: 14px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 6px;
+}
+
+button.row-btn {
+  cursor: pointer;
+}
+
+.check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 5px 0;
+}
+
+.check input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* A task's title opens it, but reads as text: white, blue only on hover. */
+.check-text {
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.check a.check-text,
+.check a.check-text .t1 {
+  color: var(--text);
+}
+
+.check a.check-text:hover .t1 {
+  color: var(--accent);
+}
+
+/* Done a moment ago: struck through, fading out over eight seconds (the panel's DONE_SHOWN),
+   then gone (welcome.js). Its box, checked again, brings it back. */
+.check.is-done {
+  animation: done-fade 8s linear forwards;
+}
+
+@keyframes done-fade {
+  to {
+    opacity: 0;
+  }
+}
+
+.check.is-done .t1 {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
+
+.check.is-done input {
+  cursor: pointer;
+}
+
+.t2.overdue {
+  color: var(--fail);
+}
+
+/* Quick actions: questions for Ask, two to a row */
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.quick-action {
+  justify-content: flex-start;
+  gap: 9px;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.quick-action svg {
+  flex: none;
+  color: var(--accent);
+}
+
+/* Voice: a round microphone button and what it is doing */
+
+.voice-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.voice {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.voice-mic {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  color: var(--accent);
+  background: radial-gradient(circle, rgb(79 209 232 / 14%), rgb(79 209 232 / 4%));
+  border: 1px solid var(--line-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 22px -6px var(--accent-glow), inset 0 0 12px -4px var(--accent-glow);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.voice-mic:hover,
+.voice-mic.is-listening {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px -4px var(--accent-glow), inset 0 0 14px -4px var(--accent-glow);
+}
+
+/* Priorities from today's brief; each opens the report */
+
+.priority {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.priority .badge {
+  flex: none;
+  justify-content: center;
+  min-width: 64px;
+}
+
+.priority-text {
+  min-width: 0;
+}
+
+.priority:hover .t1 {
+  color: var(--accent);
+}
+
+/* Brief: headline and button in the orb's core, and the report dialog */
+
+.core:has(.brief-headline) #core-line {
+  display: none;
+}
+
+.core-brief {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.full-report {
+  display: inline-flex;
+  align-items: center;
+  height: 2.6em;
+  margin-top: 6px;
+  padding: 0 1.3em;
+  font-size: max(10px, calc(var(--d) * 0.015));
+  color: var(--accent);
+  background: var(--accent-surface);
+  border: 1px solid var(--line-accent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.full-report:hover {
+  color: #e8fbfe;
+  background: #0f2a33;
+  border-color: var(--accent);
+  box-shadow: 0 0 18px -2px rgb(79 209 232 / 55%);
+}
+
+.modal-report {
+  width: min(1180px, calc(100% - 48px));
+  /* As tall as the report needs, up to the window; it scrolls only when it does not fit.
+     The parts inside keep their natural height (flex: 0 1 auto): with flex-basis 0 WebKit
+     (Safari, cmux) sizes a fit-content dialog to nothing. */
+  height: -webkit-fit-content;
+  height: fit-content;
+  max-height: calc(100vh - 48px);
+}
+
+.modal-report .report {
+  flex: 0 1 auto;
+  max-height: calc(100vh - 50px);
+}
+
+.modal-report .report-body {
+  flex: 0 1 auto;
+}
+
+.report {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.report-title {
+  margin: 2px 0;
+  font-family: "Chakra Petch", var(--font-mono);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+.report-body {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px 32px;
+  align-content: start;
+  min-height: 0;
+  padding: 22px 24px;
+  overflow-y: auto;
+}
+
+.report-wide,
+.report-body > .alert {
+  grid-column: 1 / -1;
+}
+
+.report-summary { grid-column: span 7; }
+.report-priorities { grid-column: span 5; }
+
+@media (max-width: 900px) {
+  /* Everything takes the whole width here, so one column: twelve with their gaps (11 × 32 px)
+     are wider than a phone and scroll the report sideways. */
+  .report-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-summary,
+  .report-priorities {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .report-body {
+    padding: 16px;
+  }
+}
+
+.report-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.report-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.report-paragraph {
+  max-width: 72ch;
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-body);
+}
+
+.report-paragraph:first-child {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.report-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.report-item .badge {
+  flex: none;
+  justify-content: center;
+  min-width: 72px;
+}
+
+/* Weather panel */
+
+.weather-now {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.warn-text {
+  color: var(--warn);
+}
+
+.weather-hours {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-align: center;
+}
+
+.weather-hours > div {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
+  background: var(--surface-2);
+  border-radius: var(--r-badge);
+}
+
+.weather-hours .rain {
+  font-size: 11px;
+  color: var(--info);
+}
+
+/* YouTube mini player: YouTube requires its player to stay visible, at least 200 px tall. */
+
+
+
+.report-voice {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.voice-picker {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.voice-picker[hidden] {
+  display: none;
+}
+
+.voice-picker select {
+  height: 34px;
+  max-width: 260px;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.read-error {
+  flex-basis: 100%;
+  color: var(--warn);
+  text-align: right;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.read-error:empty {
+  display: none;
+}
+
+.modal-report .modal-head {
+  flex-wrap: wrap;
+}
+
+/* Report: day at a glance */
+
+.report-glance {
+  margin-bottom: 18px;
+  /* A label near the end of the day reaches past the track; it must not scroll the report
+     sideways. */
+  overflow-x: clip;
+}
+
+/* As in the design: a dark bar with bright event blocks, labels alternating above and below. */
+.glance-track {
+  position: relative;
+  height: 98px;
+  margin-top: 4px;
+}
+
+.glance-track::before {
+  content: "";
+  position: absolute;
+  top: 52px;
+  right: 0;
+  left: 0;
+  height: 20px;
+  background: #0d1117;
+  border: 1px solid #1f2833;
+  border-radius: 4px;
+}
+
+.glance-item {
+  position: absolute;
+  top: 52px;
+  height: 20px;
+  min-width: 4px;
+  background: rgb(79 209 232 / 28%);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+}
+
+/* Time kept for lunch: not a meeting, so only an outline. */
+.glance-item.lunch {
+  background: transparent;
+  border: 1px dashed var(--text-3);
+}
+
+.glance-item.lunch .glance-label {
+  color: var(--text-3);
+}
+
+/* A free block for focus: open time, so an outline in the schedule's green. */
+.glance-item.focus {
+  background: rgb(52 211 153 / 8%);
+  border: 1px dashed var(--ok);
+}
+
+.glance-item.focus .glance-label {
+  color: var(--ok);
+}
+
+/* The way to an event: dotted in the schedule's amber, as there. */
+.glance-item.travel {
+  background: rgb(245 196 106 / 8%);
+  border: 1px dotted var(--warn);
+}
+
+.glance-item.travel .glance-label {
+  color: var(--warn);
+}
+
+.glance-item.travel .glance-tip {
+  border-left-color: var(--warn);
+}
+
+.glance-item.travel .glance-tip-length {
+  color: var(--warn);
+  background: rgb(245 196 106 / 12%);
+}
+
+.glance-item.past {
+  background: rgb(79 209 232 / 11%);
+  border-color: rgb(79 209 232 / 40%);
+}
+
+.glance-label {
+  position: absolute;
+  /* Above the track, anchored at its foot: a second line grows upwards. */
+  bottom: calc(100% + 8px);
+  left: 0;
+  max-width: 240px;
+  overflow: hidden;
+  font-size: 12px;
+  color: #c9d4de;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.glance-item.below .glance-label {
+  top: 24px;
+  bottom: auto;
+}
+
+/* A meeting at the same time as this one: a line of its own under it. */
+.glance-line {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.glance-item.past .glance-label {
+  opacity: 0.55;
+}
+
+.glance-item.end .glance-label {
+  right: 0;
+  left: auto;
+}
+
+/* On hover over an event: a card with its title, its time and how long it takes, above the
+   labels, coloured as the event. */
+.glance-tip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
+  z-index: 5;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  width: max-content;
+  max-width: 280px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text);
+  background: #0f151c;
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 55%);
+  pointer-events: none;
+}
+
+.glance-item.end .glance-tip {
+  right: 0;
+  left: auto;
+}
+
+.glance-item:hover {
+  z-index: 4;
+}
+
+.glance-item:hover .glance-tip {
+  display: flex;
+}
+
+.glance-tip strong {
+  font-weight: 600;
+}
+
+.glance-tip-when {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-2);
+}
+
+.glance-tip-length {
+  padding: 1px 7px;
+  color: var(--accent);
+  background: rgb(79 209 232 / 12%);
+  border-radius: 999px;
+}
+
+.glance-item.focus .glance-tip {
+  border-left-color: var(--ok);
+}
+
+.glance-item.focus .glance-tip-length {
+  color: var(--ok);
+  background: rgb(110 231 160 / 12%);
+}
+
+.glance-item.lunch .glance-tip {
+  border-left-color: var(--text-3);
+}
+
+.glance-item.lunch .glance-tip-length {
+  color: var(--text-2);
+  background: rgb(135 148 161 / 14%);
+}
+
+.glance-time {
+  margin-right: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #8794a1;
+}
+
+.glance-now {
+  position: absolute;
+  top: 44px;
+  width: 2px;
+  height: 36px;
+  margin-left: -1px;
+  background: #ff8a8a;
+  box-shadow: 0 0 8px rgb(255 138 138 / 70%);
+}
+
+.glance-now::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  background: #ff8a8a;
+  border-radius: 50%;
+}
+
+.glance-now-label {
+  color: #ff8a8a;
+}
+
+.glance-hours {
+  position: relative;
+  height: 14px;
+}
+
+.glance-hours span {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #8794a1;
+  letter-spacing: 0;
+  transform: translateX(-50%);
+}
+
+.glance-hours span:first-child {
+  transform: none;
+}
+
+.glance-hours span:last-child {
+  transform: translateX(-100%);
+}
+
+.glance-list {
+  display: none;
+}
+
+/* Phone: after the rules it adjusts, so it wins over them. A day is about 330 px wide, too
+   narrow for labels on the track, so they make way for a list under it; the read-aloud
+   controls take a line of their own under the title. */
+@media (max-width: 760px) {
+  .glance-track {
+    height: 30px;
+  }
+
+  .glance-track::before,
+  .glance-item {
+    top: 6px;
+  }
+
+  .glance-now {
+    top: 0;
+    height: 32px;
+  }
+
+  .glance-label {
+    display: none;
+  }
+
+  .glance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 12px 0 0;
+    padding: 0;
+    font-size: 13px;
+    color: #c9d4de;
+    list-style: none;
+  }
+
+  .glance-list .past {
+    opacity: 0.55;
+  }
+
+  .report-voice {
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .modal-report,
+  .modal-report .report {
+    max-height: calc(var(--screen) - 32px - var(--safe-top) - var(--safe-bottom));
+  }
+}
+
+/* Report: sources */
+
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.source-tile {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.source-tile:hover {
+  border-color: var(--line-accent);
+}
+
+.source-tile.warn {
+  border-color: rgb(245 196 106 / 35%);
+}
+
+.source-icon {
+  color: var(--accent);
+}
+
+.source-tile.warn .source-icon {
+  color: var(--warn);
+}
+
+.source-value {
+  min-width: 34px;
+  font-size: 30px;
+}
+
+.source-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.source-change {
+  margin-left: 4px;
+  color: var(--text-3);
+}
+
+.source-change.up {
+  color: var(--warn);
+}
+
+.source-arrow {
+  font-size: 18px;
+  color: var(--text-3);
+}
+
+/* Calendar side panel: moving between days */
+
+.day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.day-nav .icon-btn {
+  width: 26px;
+  height: 26px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.day-nav .icon-btn:disabled {
+  visibility: hidden;
+}
+
+/* Writing a new brief: a spinner on the button and a status line until Claude has answered */
+
+.spinner {
+  display: inline-block;
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.brief-writing {
+  display: none;
+}
+
+.brief-writing.is-writing,
+.brief-writing.htmx-request {
+  display: flex;
+}
+
+.brief-writing .alert-tag {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.brief-stale {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.brief-stale .btn {
+  margin-left: auto;
+}
+
+.brief-writing.htmx-request ~ .brief-stale {
+  display: none;
+}
+
+.brief-generate .spinner,
+.brief-generate .when-busy,
+.brief-generate.htmx-request .when-idle {
+  display: none;
+}
+
+.brief-generate.htmx-request .spinner,
+.brief-generate.htmx-request .when-busy {
+  display: inline-block;
+}
+
+.btn.brief-generate {
+  gap: 8px;
+}
+
+.icon-btn.brief-generate.htmx-request svg,
+.refresh-btn.htmx-request svg,
+dialog.is-refreshing .refresh-btn svg {
+  animation: spin 1s linear infinite;
+}
+
+/* On the first load the numbers wait for each other (welcome.js, a few seconds at most), then
+   come in one after another round the ring; after that a circle glides to its new place and
+   size, and one that arrives late comes in on its own. */
+.orb-widgets.is-gathering .place {
+  visibility: hidden;
+}
+
+.orb-widgets.is-placed .place {
+  transition: --angle 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.orb-widgets.is-placed .node {
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s, --s 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.place.is-new .node:not(.node-loading) {
+  animation: node-in 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.25) var(--delay, 0ms) backwards;
+}
+
+@keyframes node-in {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+/* Circles shown while the numbers load */
+
+.node.node-loading {
+  color: var(--accent);
+  cursor: default;
+  animation: node-loading 1.6s ease-in-out infinite;
+}
+
+@keyframes node-loading {
+  0%,
+  100% { opacity: 0.35; }
+  50% { opacity: 0.7; }
+}
+
+.node-loading .spinner {
+  width: calc(var(--sz) * 0.22);
+  height: calc(var(--sz) * 0.22);
+  border-width: 2px;
+}
+
+/* The activity list in the right column */
+
+.activity-item {
+  display: grid;
+  grid-template-columns: 38px 14px minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+  padding: 5px 0;
+}
+
+.activity-mark {
+  font-size: 12px;
+  text-align: center;
+}
+
+.activity-mark.ok { color: var(--ok); }
+.activity-mark.fail { color: var(--fail); }
+.activity-mark.warn { color: var(--warn); }
+.activity-mark.info { color: var(--accent); }
+
+.activity-text {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.activity-text a {
+  color: inherit;
+}
+
+/* A dialog loading new data (Refresh): dimmed, with a note, until it is replaced */
+
+dialog.is-refreshing .modal-body {
+  pointer-events: none;
+  opacity: 0.45;
+  transition: opacity 0.2s;
+}
+
+dialog.is-refreshing .modal-head::after {
+  content: "Loading new data…";
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 22px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.modal-head {
+  position: relative;
+}
+
+/* Pull to refresh (see welcome.js): the note in the room the pulled body leaves above it. */
+.pull-hint {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 10.5px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.pull-hint.is-ready {
+  color: var(--accent);
+}
+
+/* A group with nothing left after the other filters */
+
+.group-item.is-empty {
+  opacity: 0.45;
+}
+
+/* The assistant's color (Profile): the orb's cloud, rings and ticks, its glow and the light
+   behind it turn from the design's cyan; the numbers around it and the amber ring keep their
+   colors. */
+
+.orb > .cloud,
+.orb > .ticks,
+.orb > .ring:not(.spin-rev),
+.core-name,
+.halo,
+.wall,
+.horizon,
+.floor {
+  filter: hue-rotate(var(--orb-hue, 0deg));
+}
+
+/* Refresh ring: a thin arc over the node's border fills up as its data gets older; when it
+   is full the number is fetched again (welcome.js). Brighter near the end, pulsing while
+   loading. */
+
+@property --ring {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.node.has-ring::after {
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  content: "";
+  background: conic-gradient(var(--ring-color, var(--accent)) calc(var(--ring) * 1turn), transparent 0);
+  border-radius: 50%;
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  opacity: 0.6;
+  animation: ring-fill var(--ring-time, 300s) linear var(--ring-delay, 0s) forwards;
+}
+
+.node.warn {
+  --ring-color: var(--warn);
+}
+
+@keyframes ring-fill {
+  0% { --ring: 0; opacity: 0.55; }
+  85% { opacity: 0.7; }
+  100% { --ring: 1; opacity: 1; }
+}
+
+/* Loading (the ring was full): the whole ring breathes until the new number is in. */
+
+.slot.htmx-request .node.has-ring::after {
+  --ring: 1;
+  animation: ring-loading 1.1s ease-in-out infinite;
+}
+
+@keyframes ring-loading {
+  0%,
+  100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node.has-ring::after,
+  .slot.htmx-request .node.has-ring::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Ask: the conversation with the assistant, the latest at the bottom */
+
+.ask-modal {
+  --modal-height: min(820px, calc(var(--screen) - 64px));
+
+  width: min(760px, calc(100% - 48px));
+}
+
+/* On a phone as the other dialogs: the visible screen, clear of the status bar. */
+@media (max-width: 760px) {
+  .ask-modal {
+    --modal-height: calc(var(--screen) - 32px - var(--safe-top) - var(--safe-bottom));
+
+    width: calc(100% - 24px);
+  }
+}
+
+.ask-log {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  padding: 22px;
+  overflow-y: auto;
+}
+
+.ask-message {
+  max-width: 88%;
+  font-size: 14.5px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.ask-message p,
+.ask-message ul {
+  margin: 0 0 8px;
+}
+
+.ask-message :last-child {
+  margin-bottom: 0;
+}
+
+.ask-message ul {
+  padding-left: 18px;
+}
+
+.ask-user {
+  align-self: flex-end;
+  padding: 9px 14px;
+  color: var(--text);
+  white-space: pre-wrap;
+  background: var(--accent-surface);
+  border: 1px solid var(--line-accent);
+  border-radius: 14px 14px 4px;
+}
+
+.ask-assistant {
+  align-self: flex-start;
+  color: var(--text-body);
+}
+
+.ask-error {
+  align-self: flex-start;
+  color: var(--fail-text);
+}
+
+.ask-note {
+  font-size: 12.5px;
+  color: var(--warn);
+}
+
+.ask-thinking {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* After text already written: the note below it. */
+.ask-message p + .ask-thinking,
+.ask-message ul + .ask-thinking {
+  margin-top: 10px;
+}
+
+.ask-spinner {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--line-accent);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: ask-spin 0.8s linear infinite;
+}
+
+@keyframes ask-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ask-form {
+  display: flex;
+  gap: 8px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--line);
+}
+
+.ask-form .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.ask-form .btn {
+  height: 44px;
+}
+
+.ask-form .ask-voice {
+  width: 44px;
+  height: 44px;
+  color: var(--accent);
+  border-radius: 50%;
+}
+
+.ask-voice.is-listening {
+  animation: listening 1.4s ease-in-out infinite;
+}
+
+/* The AI summary of unread emails, in the email details under the numbers */
+
+.details-extra:empty {
+  display: none;
+}
+
+.email-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  margin-top: 4px;
+  background: var(--accent-surface);
+  border: 1px solid var(--line-accent);
+  border-radius: 10px;
+}
+
+.email-summary p {
+  margin: 0;
+}
+
+.email-summary-overview {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.email-summary-note,
+.email-summary-error {
+  font-size: 12.5px;
+}
+
+.email-summary-error {
+  color: var(--fail-text);
+}
+
+.email-summary-head {
+  margin-top: 4px;
+}
+
+.email-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.email-summary-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.email-summary-list a {
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.email-summary-list a:hover .trunc {
+  color: var(--accent);
+}
+
+.email-summary-btn.htmx-request {
+  cursor: progress;
+}
+
+/* The activity column: as tall as the events that fit above the YouTube window (welcome.js
+   sets max-height); it grows and shrinks smoothly, events below it fade out. */
+
+.side-right {
+  overflow: hidden;
+  transition: max-height 0.45s ease, transform 0.45s ease;
+}
+
+.activity-item {
+  transition: opacity 0.3s ease;
+}
+
+.activity-item.is-cut {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side-right,
+  .activity-item {
+    transition: none;
+  }
+}
+
+/* Ask: an action Claude proposes, to do or cancel; then what it did, with Undo */
+
+.ask-action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-accent);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+}
+
+.ask-action-text {
+  flex: 1 1 260px;
+  min-width: 0;
+  color: var(--text);
+  /* A draft reply keeps its paragraphs. */
+  white-space: pre-line;
+}
+
+.ask-action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ask-action-status {
+  font-size: 12.5px;
+  color: var(--ok);
+}
+
+.ask-action-status.is-cancelled {
+  color: var(--text-3);
+}
+
+.ask-action-status.is-error {
+  color: var(--fail-text);
+}
+
+.ask-action.is-cancelled {
+  border-left-color: var(--line-strong);
+  opacity: 0.7;
+}
+
+/* Ask: stopping an answer read aloud */
+
+.ask-stop {
+  margin-right: 6px;
+}
+
+/* Ask: an outcome or a problem ([ok], [warn], [error] in the answer) in its colour */
+
+.ask-message .ask-note {
+  padding: 8px 12px;
+  border-left: 3px solid;
+  border-radius: 6px;
+}
+
+.ask-message li.ask-note {
+  margin: 4px 0 4px -18px;
+  padding-left: 15px;
+  list-style: none;
+}
+
+.ask-note-ok {
+  color: var(--ok);
+  background: rgb(110 231 160 / 8%);
+  border-color: var(--ok);
+}
+
+.ask-note-warn {
+  color: var(--warn);
+  background: rgb(245 196 106 / 9%);
+  border-color: var(--warn);
+}
+
+.ask-note-error {
+  color: var(--fail);
+  background: rgb(255 138 138 / 9%);
+  border-color: var(--fail);
+}
+
+/* Ask: a text to copy, e.g. a draft reply ("> " lines in the answer) */
+
+.ask-quote {
+  position: relative;
+  margin: 0 0 10px;
+  padding: 10px 12px 10px 14px;
+  background: var(--surface);
+  border-left: 2px solid var(--accent);
+  border-radius: 6px;
+}
+
+.ask-quote .ask-copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0.7;
+}
+
+.ask-quote .ask-copy:hover,
+.ask-quote .ask-copy:focus-visible {
+  opacity: 1;
+}
+
+.ask-quote-text {
+  padding-right: 64px;
+}
+
+/* The Voice panel's language: a small menu of the languages to speak in */
+.voice-lang {
+  position: relative;
+}
+
+.voice-lang > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.voice-lang > summary::-webkit-details-marker {
+  display: none;
+}
+
+.voice-lang > summary:hover,
+.voice-lang[open] > summary {
+  color: var(--accent);
+}
+
+/* While it is open, the column (which clips its events, or scrolls) lets it show whole. */
+.side-right:has(.voice-lang[open]),
+.welcome-main > .side-right:has(.voice-lang[open]) {
+  overflow: visible;
+}
+
+.voice-lang-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  min-width: 300px;
+  padding: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgb(0 0 0 / 55%);
+}
+
+.voice-lang-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.voice-lang-option:hover,
+.voice-lang-option:focus-visible {
+  background: var(--surface-3);
+}
+
+.voice-lang-option[aria-checked="true"] {
+  color: var(--accent);
+}
+
+/* Add in a side panel's head, and the small dialog it opens */
+.side-add {
+  padding: 0;
+  /* Grey as the other heads' source names; blue on hover, as a link. */
+  color: var(--text-3);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.side-add:hover,
+.side-add:focus-visible {
+  color: var(--accent-hover);
+}
+
+/* As tall as its fields, in the middle of the window. */
+.modal.modal-add {
+  width: min(560px, calc(100% - 32px));
+  height: fit-content;
+  margin: auto;
+  padding: 18px 20px;
+}
+
+.add-form {
+  display: grid;
+  gap: 10px;
+}
+
+.add-row {
+  display: flex;
+  gap: 8px;
+  /* The button as tall as the field. */
+  align-items: stretch;
+}
+
+.add-row .btn {
+  height: auto;
+}
+
+.add-due {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.add-due .field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.add-due .input {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Safari on iOS draws date and time fields its own way: wider than their column (the time ran
+   past the dialog's edge). Without its appearance they take the size given here, as the
+   other fields. */
+.add-due input[type="date"],
+.add-due input[type="time"] {
+  appearance: none;
+}
+
+.add-due ::-webkit-date-and-time-value {
+  min-height: 1lh;
+  text-align: left;
+}
+
+@media (max-width: 560px) {
+  .add-due {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .add-due .field:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Why an answer was not read aloud */
+.ask-message.ask-voice-note {
+  font-size: 12.5px;
+  color: var(--text-3);
+}
+
+
+/* The version under the welcome screen opens what changed in each version. */
+button.welcome-version {
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+button.welcome-version:hover,
+button.welcome-version:focus-visible {
+  color: var(--accent-hover);
+}
+
+.modal.modal-releases {
+  width: min(760px, calc(100% - 32px));
+}
+
+.releases-box {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.releases {
+  flex: 1;
+  min-height: 0;
+  padding: 18px 24px 24px;
+  overflow-y: auto;
+}
+
+.release-list {
+  display: grid;
+  gap: 18px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.release-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.release-version {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.release-version:hover {
+  color: var(--accent);
+}
+
+.release-changes {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: var(--text-2);
+}
+
+.release-changes a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.release-changes a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.release.is-running .release-version {
+  color: var(--accent);
+}
+
+/* Hidden with Hide past / Hide completed in the panels' heads (welcome.js): past events in
+   today's schedule, priorities that are over. */
+.welcome[data-hide-past] .ti.past,
+.welcome[data-hide-completed] .priority.is-completed {
+  display: none;
+}
+
+/* A priority that is over: dimmed while shown. */
+.priority.is-completed {
+  opacity: 0.5;
+}
+
+/* A side column cut off by the window: its content fades out at the edge it goes on past,
+   rather than stopping sharp (welcome.js marks which). On its side, the phone has its own. */
+.welcome .side.is-cut-top {
+  mask-image: linear-gradient(transparent, #000 48px);
+}
+
+.welcome .side.is-cut-bottom {
+  mask-image: linear-gradient(#000 calc(100% - 64px), transparent);
+}
+
+.welcome .side.is-cut-top.is-cut-bottom {
+  mask-image: linear-gradient(transparent, #000 48px, #000 calc(100% - 64px), transparent);
+}
+
+/* A row's status history (Row.history): a bar a day under it, and a chosen day by the hour. */
+.history,
+.history-hours {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 3px;
+  align-items: stretch;
+  margin-top: -2px;
+}
+
+.history {
+  grid-row: 2;
+  height: 18px;
+}
+
+/* The bars go under the title, the badge and buttons stay beside it. */
+.modal-row:has(.history) > :first-child {
+  grid-area: 1 / 1;
+}
+
+.modal-row:has(.history) > .badge,
+.modal-row:has(.history) > span:nth-last-child(2):empty {
+  grid-area: 1 / 2;
+}
+
+.modal-row:has(.history) > .row-actions {
+  grid-area: 1 / 3;
+}
+
+.history-bar,
+.history-hour {
+  flex: 1;
+  max-width: 10px;
+  padding: 0;
+  background: var(--ok);
+  border: 0;
+  border-radius: 2px;
+  opacity: 0.85;
+}
+
+.history-bar {
+  cursor: pointer;
+}
+
+.history-bar:hover,
+.history-bar:focus-visible,
+.history-bar[aria-pressed="true"] {
+  opacity: 1;
+  outline: 1px solid var(--text);
+  outline-offset: 1px;
+}
+
+:is(.history-bar, .history-hour).is-down {
+  background: var(--fail);
+}
+
+:is(.history-bar, .history-hour).is-none {
+  background: var(--line-strong);
+}
+
+.history-hours {
+  grid-row: 3;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+}
+
+.history-hours[hidden] {
+  display: none;
+}
+
+.history-hours-bars {
+  display: flex;
+  gap: 3px;
+  height: 22px;
+}
+
+.history-hour {
+  max-width: none;
+}
+
+/* The hours still to come today. */
+.history-hour.is-later {
+  background: none;
+  border: 1px dashed var(--line);
+}
+
+button.history-hour {
+  cursor: pointer;
+}
+
+.history-hour[aria-pressed="true"] {
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+  opacity: 1;
+}
+
+/* An hour by the minute, under its day. */
+.history-minutes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.history-minutes-bars {
+  display: flex;
+  gap: 1px;
+  height: 18px;
+}
+
+.history-minute {
+  flex: 1;
+  background: var(--ok);
+  border-radius: 1px;
+  opacity: 0.85;
+}
+
+.history-minute.is-down {
+  background: var(--fail);
+}
+
+.history-minute.is-none {
+  background: var(--line-strong);
+}
+
+.history-minute.is-later {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.history-hours-scale {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+/* Search in the header: a magnifier; ⌘K is in its tooltip. */
+.palette-open .palette-icon {
+  display: block;
+}
+
+/* The tour after setup (tour.js): driver.js's box in myOrb's colors. driver.css loads after this
+   file, so each rule names both classes to win over it. */
+.driver-popover.myorb-tour {
+  max-width: min(340px, calc(100vw - 32px));
+  padding: 18px;
+  color: var(--text-body);
+  background: var(--surface-2);
+  border: 1px solid var(--line-accent);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 55%), 0 0 0 1px rgb(79 209 232 / 8%);
+}
+
+.driver-popover.myorb-tour * {
+  font-family: var(--font-sans);
+}
+
+.driver-popover.myorb-tour .driver-popover-title {
+  /* Clear of the × beside it. */
+  padding-right: 28px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.driver-popover.myorb-tour .driver-popover-description {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-body);
+}
+
+.driver-popover.myorb-tour .driver-popover-footer {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.driver-popover.myorb-tour .driver-popover-progress-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+}
+
+.driver-popover.myorb-tour .driver-popover-footer button {
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  text-shadow: none;
+  background: var(--surface-3);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+}
+
+.driver-popover.myorb-tour .driver-popover-footer .driver-popover-next-btn,
+.driver-popover.myorb-tour .driver-popover-footer .tour-primary {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.driver-popover.myorb-tour .driver-popover-footer .tour-danger {
+  color: var(--fail);
+  background: var(--fail-surface);
+  border-color: var(--fail-line);
+}
+
+/* The dimming stays as it is from step to step: no fading in again when it moves into a dialog
+   or out of it (tour.js), and the dialog's own backdrop gives way to it, so the page behind is
+   as dark under a dialog as beside it. driver.css loads later, hence the body. */
+body.driver-active .driver-overlay {
+  animation: none;
+}
+
+.driver-active dialog::backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+/* Its ×, top right: it asks before it ends anything (tour.js). */
+.driver-popover.myorb-tour .tour-end {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-3);
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.driver-popover.myorb-tour .tour-end:hover {
+  color: var(--text);
+  background: var(--surface-3);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-top {
+  border-top-color: var(--surface-2);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--surface-2);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-left {
+  border-left-color: var(--surface-2);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-right {
+  border-right-color: var(--surface-2);
+}
+
+/* driver.css hides what overflows the lit part's parent: a number hanging from its point, or
+   the numbers over the orb's edge, would be cut off. Not the screens' strip on a phone, which
+   has to stay a scroller. */
+#app :has(> .driver-active-element):not(.welcome-main) {
+  overflow: visible !important;
+}

@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
+  /* As the orb's page (orb.html) has it, so its frame stays see-through. */
+  :root { color-scheme: dark; }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: #07090C; color: #E6EDF3; overflow: hidden; }
   body { font-family: 'IBM Plex Sans', Arial, sans-serif; }
@@ -101,7 +103,7 @@
 <p style="font-size:32px;line-height:1.4;color:#C9D4DE"><span style="color:#4FD1E8">●</span> A click opens what is behind it, with actions: Done, Mark as read, Approve.</p>
 </div>
 </div>
-<img src="img/orb-clean.png" alt="The orb: J.A.R.V.I.S. in the middle, with numbers around it for events, tasks, unread email, pull requests, finance, Jira, mentions, incidents, sleep and videos; pull requests, finance and Jira are bigger and marked with a warning" style="width:820px;height:797px;object-fit:contain">
+<iframe src="orb.html" title="The orb, live: J.A.R.V.I.S. with a number per source around it" style="width:820px;height:820px;border:0;background:transparent" loading="eager"></iframe>
 </section>
 
 <section class="slide" id="brief" data-transition="fade" style="background:#07090C;color:#E6EDF3;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:row;align-items:center;gap:72px">
