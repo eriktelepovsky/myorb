@@ -55,14 +55,14 @@
     {
       element: "#report .report-body",
       opener: "[data-open-report]",
-      dialog: "report",
+      dialog: "#report",
       title: "Your brief",
       text: "What needs you first, the day ahead and what changed since yesterday, in a few minutes of reading. A new one comes every morning.",
     },
     {
       element: "#report [data-read-aloud]",
       opener: "[data-open-report]",
-      dialog: "report",
+      dialog: "#report",
       title: "Hear it read aloud",
       text: `Listen while you get ready: ${name()} reads the brief aloud, in the language you pick beside it.`,
     },
@@ -75,7 +75,7 @@
     {
       element: "#ask .ask-log",
       opener: "[data-ask-quick]",
-      dialog: "ask",
+      dialog: "#ask",
       title: `Chat with ${name()}`,
       text: `Here Plan today asked ${name()} to plan the rest of the day. Ask a follow-up below, typed or by voice. Whatever ${name()} offers to do, such as adding a task, waits for your yes.`,
     },
@@ -89,6 +89,14 @@
       element: "[data-palette-open]",
       title: "Search everything",
       text: "Find any email, event, task or pull request, and run commands. ⌘K or Ctrl+K opens it from anywhere.",
+    },
+    {
+      element: "dialog.palette[open] .palette-list",
+      opener: "[data-palette-open]",
+      dialog: "dialog.palette",
+      type: "Pepper",
+      title: "Found as you type",
+      text: `“Pepper” finds the lunch with her, the task for her birthday, her email, a pull request and a Slack message. Enter opens the one chosen. Commands such as New task run from here too, and anything else goes to ${name()}.`,
     },
     {
       element: '.header-nav a[href="/integrations"]',
@@ -144,10 +152,14 @@
   };
 
   // A step in a dialog opens it with its `opener`, as a click would (a number's details, the
-  // brief, or Ask with a quick action's answer); any other step closes it. A number's dialog is
-  // the one its button names.
-  const dialogOf = (step) =>
-    step.opener && (step.dialog ?? document.querySelector(step.opener)?.dataset.open);
+  // brief, Ask with a quick action's answer, the search), and types its `type` there; any other
+  // step closes it. A number's dialog is the one its button names.
+  const dialogOf = (step) => {
+    if (!step.opener) return null;
+    if (step.dialog) return step.dialog;
+    const named = document.querySelector(step.opener)?.dataset.open;
+    return named ? `#${named}` : null;
+  };
 
   // An open dialog is in the page's top layer, over everything else: the dimming and the box
   // move into it while a step shows, and back to the page before driver.js changes them, as it
@@ -161,10 +173,17 @@
 
   const dialogFor = (step) => {
     lower();
-    const id = dialogOf(step);
+    const wanted = dialogOf(step);
     const open = document.querySelector("dialog[open]");
-    if (open && open.id !== id) open.close();
-    if (id && !document.getElementById(id)?.open) document.querySelector(step.opener)?.click();
+    if (open && !(wanted && open.matches(wanted))) open.close();
+    if (wanted && !document.querySelector(wanted)?.open) {
+      document.querySelector(step.opener)?.click();
+    }
+    const field = step.type && document.querySelector(`${wanted} input`);
+    if (field && field.value !== step.type) {
+      field.value = step.type;
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+    }
   };
 
   // The room around the lit part: enough for what `cover` names to show whole.
@@ -249,12 +268,13 @@
   const start = () => {
     if (!window.driver?.js || !document.getElementById("welcome")) return;
     // Each part is looked up when its step shows; one not on the page leaves the box centered.
-    const list = steps().map(({ element, cover, pane, opener, dialog, title, text }) => ({
+    const list = steps().map(({ element, cover, pane, opener, dialog, type, title, text }) => ({
       element,
       cover,
       pane,
       opener,
       dialog,
+      type,
       popover: { title, description: text },
     }));
     guide = window.driver.js.driver({
