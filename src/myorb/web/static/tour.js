@@ -1,7 +1,7 @@
 // The tour after setup (tour.py): a guide through the made-up day, one part of the screen at a
 // time, with driver.js. It ends only on purpose: with its last button, which leads on to setting
-// myOrb up, or by confirming "End the tour". Esc, clicks beside it and closing the page do not
-// end it; the step it was on is kept for next time.
+// myOrb up, or with its × and then "End the tour". Esc, clicks beside it and closing the page do
+// not end it; the step it was on is kept for next time.
 (() => {
   const KEY = "myorb-tour-step";
   const name = () => document.querySelector(".core-name")?.textContent.trim() || "myOrb";
@@ -132,7 +132,7 @@
     form.submit();
   };
 
-  // "End the tour" asks first, in the step's own box, with "Keep going" as the default.
+  // The × asks first, in the step's own box, with "Keep going" as the default.
   const confirmEnd = (popover) => {
     popover.title.textContent = "End the tour?";
     popover.description.textContent =
@@ -183,12 +183,18 @@
       },
       onPrevClick: () => show(Math.max(0, (guide.getActiveIndex() ?? 0) - 1)),
       onPopoverRender: (popover) => {
+        // driver.js shows its own × only when it may close on its own; this one asks first.
         const end = document.createElement("button");
         end.type = "button";
         end.className = "tour-end";
-        end.textContent = "End the tour";
-        end.addEventListener("click", () => confirmEnd(popover));
-        popover.footer.prepend(end);
+        end.setAttribute("aria-label", "End the tour");
+        end.title = "End the tour";
+        end.textContent = "×";
+        end.addEventListener("click", () => {
+          end.remove();
+          confirmEnd(popover);
+        });
+        popover.wrapper.append(end);
       },
     });
     show(stored(list.length));
