@@ -16,13 +16,14 @@
   <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}?v={{ version }}">
   <link rel="stylesheet" href="{{ url_for('static', path='welcome.css') }}?v={{ version }}">
   {% include "scripts.html" %}
-  {% if tour %}
+  {# After setup (tour.py), and for every visitor of the public demo. #}
+  {% if tour or public_demo %}
   <link rel="stylesheet" href="{{ url_for('static', path='driver.css') }}?v={{ version }}">
   <script src="{{ url_for('static', path='driver.js') }}?v={{ version }}" defer></script>
   <script src="{{ url_for('static', path='tour.js') }}?v={{ version }}" defer></script>
   {% endif %}
 </head>
-<body hx-boost="true">
+<body hx-boost="true"{% if tour %} data-tour="setup"{% elif public_demo %} data-tour="demo"{% endif %}>
 <div id="app" hx-history-elt>
 {# The orb's color: inside #app, which links swap, so a color just chosen shows. #}
 <div class="welcome" id="welcome" style="--orb-hue: {{ orb_hue }}deg">

@@ -2,8 +2,13 @@
 // time, with driver.js. It ends only on purpose: with its last button, which leads on to setting
 // myOrb up, or with its × and then "End the tour". Esc, clicks beside it and closing the page do
 // not end it; the step it was on is kept for next time.
+//
+// The public demo shows it too, once per browser (?tour in the address shows it again): there
+// it ends with where to get myOrb, and leaves the demo to try.
 (() => {
-  const KEY = "myorb-tour-step";
+  const DEMO = document.body.dataset.tour === "demo";
+  const KEY = DEMO ? "myorb-demo-tour-step" : "myorb-tour-step";
+  const DONE = "myorb-demo-tour-done";
   const PADDING = 6;
   const TASKS = '#orb-widgets [hx-get="/welcome/widget/tasks/open"] .node';
   const name = () => document.querySelector(".core-name")?.textContent.trim() || "myOrb";
@@ -103,11 +108,17 @@
       title: "Found as you type",
       text: `“Pepper” finds the lunch with her, the task for her birthday, her email, a pull request and a Slack message. Enter opens the one chosen. Commands such as New task run from here too, and anything else goes to ${name()}.`,
     },
-    {
-      element: '.header-nav a[href="/integrations"]',
-      title: "Now make it yours",
-      text: "Next, connect an AI and your own services, step by step. The made-up day then makes way for yours.",
-    },
+    DEMO
+      ? {
+          element: "#demo-note",
+          title: "Make it yours",
+          text: "myOrb is free and open source: run it on your own server, with your own services. Get myOrb shows how. Until then, the made-up day is yours to try.",
+        }
+      : {
+          element: '.header-nav a[href="/integrations"]',
+          title: "Now make it yours",
+          text: "Next, connect an AI and your own services, step by step. The made-up day then makes way for yours.",
+        },
   ];
 
   const stored = (count) => {
@@ -118,14 +129,25 @@
     }
   };
 
-  const remember = (index) => {
+  // Without storage the tour starts from its first step next time, and the demo shows it on
+  // every visit.
+  const store = (key, value) => {
     try {
-      if (index === null) localStorage.removeItem(KEY);
-      else localStorage.setItem(KEY, String(index));
+      if (value === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, value);
     } catch {
-      // Without storage the tour starts from its first step next time.
+      // Nothing kept.
     }
   };
+  const recall = (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+
+  const remember = (index) => store(KEY, index === null ? null : String(index));
 
   // Phones show one screen of three at a time: the one with the step's part first.
   const narrow = () => {
@@ -241,6 +263,12 @@
   const finish = () => {
     remember(null);
     lower();
+    if (DEMO) {
+      document.querySelector("dialog[open]")?.close();
+      store(DONE, "1");
+      guide.destroy();
+      return;
+    }
     guide.destroy();
     const form = document.createElement("form");
     form.method = "post";
@@ -259,8 +287,9 @@
     asking = true;
     popover.wrapper.querySelector(".tour-end")?.remove();
     popover.title.textContent = "End the tour?";
-    popover.description.textContent =
-      "You can take it again from Integrations. Next come the steps to set myOrb up.";
+    popover.description.textContent = DEMO
+      ? "The made-up day stays here to try on your own."
+      : "You can take it again from Integrations. Next come the steps to set myOrb up.";
     popover.footer.replaceChildren();
     const keep = document.createElement("button");
     keep.type = "button";
@@ -298,7 +327,7 @@
       progressText: "{{current}} of {{total}}",
       nextBtnText: "Next",
       prevBtnText: "Back",
-      doneBtnText: "Set up myOrb",
+      doneBtnText: DEMO ? "Done" : "Set up myOrb",
       popoverClass: "myorb-tour",
       overlayColor: "#000",
       overlayOpacity: 0.72,
@@ -356,6 +385,14 @@
   // Once the numbers around the orb are in place (or after a few seconds without them), so each
   // step finds its part where it stays.
   const begin = () => {
+    if (DEMO) {
+      if (new URLSearchParams(location.search).has("tour")) {
+        store(DONE, null);
+        remember(null);
+      } else if (recall(DONE)) {
+        return;
+      }
+    }
     const since = Date.now();
     const wait = () => {
       const loaded = document.querySelector("#orb-widgets:not([aria-busy])");
