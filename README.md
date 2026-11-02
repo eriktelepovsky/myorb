@@ -55,6 +55,8 @@ uv run myorb serve
 
 Open http://localhost:8000 and choose a password. Data (the SQLite database and the encryption key) is stored in `./data`.
 
+After that, a short tour walks through a made-up day, so you can see what each part does before you connect anything. It then leads to the steps to set myOrb up, and from then on myOrb shows your own data. Nothing done during the tour is saved. To take it again, use **Take the tour again** at the bottom of the Integrations page.
+
 Settings come from `MYORB_*` environment variables or a `.env` file in the project directory, e.g.:
 
 ```sh

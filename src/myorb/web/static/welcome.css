@@ -3746,3 +3746,128 @@ button.history-hour {
 .palette-open .palette-icon {
   display: block;
 }
+
+/* The tour after setup (tour.js): driver.js's box in myOrb's colors. driver.css loads after this
+   file, so each rule names both classes to win over it. */
+.driver-popover.myorb-tour {
+  max-width: min(340px, calc(100vw - 32px));
+  padding: 18px;
+  color: var(--text-body);
+  background: var(--surface-2);
+  border: 1px solid var(--line-accent);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 55%), 0 0 0 1px rgb(79 209 232 / 8%);
+}
+
+.driver-popover.myorb-tour * {
+  font-family: var(--font-sans);
+}
+
+.driver-popover.myorb-tour .driver-popover-title {
+  /* Clear of the × beside it. */
+  padding-right: 28px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.driver-popover.myorb-tour .driver-popover-description {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-body);
+}
+
+.driver-popover.myorb-tour .driver-popover-footer {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.driver-popover.myorb-tour .driver-popover-progress-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+}
+
+.driver-popover.myorb-tour .driver-popover-footer button {
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  text-shadow: none;
+  background: var(--surface-3);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+}
+
+.driver-popover.myorb-tour .driver-popover-footer .driver-popover-next-btn,
+.driver-popover.myorb-tour .driver-popover-footer .tour-primary {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.driver-popover.myorb-tour .driver-popover-footer .tour-danger {
+  color: var(--fail);
+  background: var(--fail-surface);
+  border-color: var(--fail-line);
+}
+
+/* The dimming stays as it is from step to step: no fading in again when it moves into a dialog
+   or out of it (tour.js), and the dialog's own backdrop gives way to it, so the page behind is
+   as dark under a dialog as beside it. driver.css loads later, hence the body. */
+body.driver-active .driver-overlay {
+  animation: none;
+}
+
+.driver-active dialog::backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+/* Its ×, top right: it asks before it ends anything (tour.js). */
+.driver-popover.myorb-tour .tour-end {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-3);
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.driver-popover.myorb-tour .tour-end:hover {
+  color: var(--text);
+  background: var(--surface-3);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-top {
+  border-top-color: var(--surface-2);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--surface-2);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-left {
+  border-left-color: var(--surface-2);
+}
+
+.driver-popover.myorb-tour .driver-popover-arrow-side-right {
+  border-right-color: var(--surface-2);
+}
+
+/* driver.css hides what overflows the lit part's parent: a number hanging from its point, or
+   the numbers over the orb's edge, would be cut off. Not the screens' strip on a phone, which
+   has to stay a scroller. */
+#app :has(> .driver-active-element):not(.welcome-main) {
+  overflow: visible !important;
+}

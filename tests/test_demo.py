@@ -117,6 +117,11 @@ def test_the_public_demo_is_open_and_changes_nothing(public_client: TestClient):
     assert tasks.count(">Fix the failing tests on PR #318<") == 1
 
 
+def test_the_public_demo_shows_the_tour(public_client: TestClient):
+    page = public_client.get("/").text
+    assert 'data-tour="demo"' in page and "/static/tour.js" in page
+
+
 def test_the_public_demo_starts_each_day_afresh(tmp_path: Path):
     async def run() -> list[str]:
         engine = create_engine(f"sqlite+aiosqlite:///{tmp_path / 'demo.db'}")
