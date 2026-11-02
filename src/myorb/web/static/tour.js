@@ -164,12 +164,18 @@
   // An open dialog is in the page's top layer, over everything else: the dimming and the box
   // move into it while a step shows, and back to the page before driver.js changes them, as it
   // expects them there.
-  const parts = () => document.querySelectorAll(".driver-overlay, .driver-popover");
+  // Each moves only when it is elsewhere: put in again, it would start fading in anew, and the
+  // page behind would flash.
+  const moveTo = (host) => {
+    for (const part of document.querySelectorAll(".driver-overlay, .driver-popover")) {
+      if (part.parentElement !== host) host.append(part);
+    }
+  };
   const lift = () => {
     const host = document.querySelector("dialog[open]");
-    if (host) host.append(...parts());
+    if (host) moveTo(host);
   };
-  const lower = () => document.body.append(...parts());
+  const lower = () => moveTo(document.body);
 
   const dialogFor = (step) => {
     lower();

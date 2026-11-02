@@ -3815,6 +3815,18 @@ button.history-hour {
   border-color: var(--fail-line);
 }
 
+/* The dimming stays as it is from step to step: no fading in again when it moves into a dialog
+   or out of it (tour.js), and the dialog's own backdrop gives way to it, so the page behind is
+   as dark under a dialog as beside it. driver.css loads later, hence the body. */
+body.driver-active .driver-overlay {
+  animation: none;
+}
+
+.driver-active dialog::backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+
 /* Its ×, top right: it asks before it ends anything (tour.js). */
 .driver-popover.myorb-tour .tour-end {
   position: absolute;
