@@ -934,6 +934,14 @@ code,
   display: none;
 }
 
+/* It only holds the bottom corners: over the card, not a row of its own, which would add a gap
+   above the first line. */
+.auth-card > .hud-corner-b {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 .auth-card > .hud-corner-b::before {
   display: none;
 }
