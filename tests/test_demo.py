@@ -52,6 +52,13 @@ def test_demo_shows_a_made_up_day(demo_client: TestClient):
     assert "leave at 12:08 for lunch with Pepper" in report
 
 
+def test_demo_plays_the_music_of_its_screenshots(demo_client: TestClient):
+    config = demo_client.get("/music/config").json()
+    assert config["source"] == "youtube" and config["video"] == "0GvTE_kG1yY"
+    demo_client.post("/integrations/music", data={"source": "ambient"})
+    assert demo_client.get("/music/config").json()["source"] == "ambient"
+
+
 def test_demo_asks_without_claude(demo_client: TestClient):
     asked = lines(
         demo_client.post(
