@@ -191,6 +191,7 @@ Then, in myOrb:
 | `MYORB_PLUGINS` | none | Custom plugins to install at startup, as for pip: `myorb-wallet==1.2`, a wheel URL or a mounted directory. See [writing plugins](https://github.com/eriktelepovsky/myorb/blob/main/docs/PLUGINS.md). |
 | `MYORB_DEMO` | off | `1` shows a made-up day instead of your services (see [Try it with sample data](#try-it-with-sample-data)). Use a data directory of its own. |
 | `MYORB_PUBLIC_DEMO` | off | `1` opens the demo to anyone without signing in. Changes are turned off and the day starts over each morning. Never use it with your own data. |
+| `MYORB_DEMO_AZURE_SPEECH_KEY`, `MYORB_DEMO_AZURE_SPEECH_REGION` | unset | Azure Speech for the public demo's Read aloud. It reads only the demo's brief, once, and keeps it; anything else is read by the browser's voice. Use a resource of its own on the free tier (F0), so the demo can never cost anything. |
 | `MYORB_HOST`, `MYORB_PORT` | `127.0.0.1`, `8000` (`0.0.0.0` in Docker) | Interface and port to listen on. |
 
 ### Updates and backups
