@@ -5,6 +5,7 @@
 (() => {
   const KEY = "myorb-tour-step";
   const PADDING = 6;
+  const TASKS = '#orb-widgets [hx-get="/welcome/widget/tasks/open"] .node';
   const name = () => document.querySelector(".core-name")?.textContent.trim() || "myOrb";
 
   // `pane`: the screen it is on when they are side by side on a phone (welcome.html).
@@ -22,10 +23,16 @@
       text: "Each number is one source: unread email, pull requests, tasks, the weather and more. A ▲ marks one that needs you.",
     },
     {
-      element: '#orb-widgets [hx-get="/welcome/widget/tasks/open"] .node',
+      element: TASKS,
       pane: 1,
       title: "The details behind a number",
-      text: "Click a number to open its details: the emails, pull requests or tasks behind it, with actions such as Done or Mark as read. ← and → move on to the next one.",
+      text: "Click a number to see what is behind it. This one is your tasks.",
+    },
+    {
+      element: "dialog[data-detail][open] .modal-body",
+      opener: TASKS,
+      title: "Your tasks, in detail",
+      text: "Each with Done and Edit beside it. The numbers at the top filter the list, and ← and → move on to the next number's details. Emails, pull requests and the rest open the same way, each with its own actions.",
     },
     {
       element: ".side-left",
@@ -43,13 +50,34 @@
       element: ".core-brief",
       pane: 1,
       title: "The daily brief",
-      text: `Every morning ${name()} writes what matters today, from all your sources. Open it to read it, or have it read aloud.`,
+      text: `Every morning ${name()} writes what matters today, from all your sources. Daily brief opens it.`,
+    },
+    {
+      element: "#report .report-body",
+      opener: "[data-open-report]",
+      dialog: "report",
+      title: "Your brief",
+      text: "What needs you first, the day ahead and what changed since yesterday, in a few minutes of reading. A new one comes every morning.",
+    },
+    {
+      element: "#report [data-read-aloud]",
+      opener: "[data-open-report]",
+      dialog: "report",
+      title: "Hear it read aloud",
+      text: `Listen while you get ready: ${name()} reads the brief aloud, in the language you pick beside it.`,
     },
     {
       element: ".command-bar",
       pane: 1,
       title: `Ask ${name()}`,
       text: `Ask anything about your day, typed or spoken. ${name()} answers from your dashboard and adds tasks for you once you agree.`,
+    },
+    {
+      element: "#ask .ask-log",
+      opener: "[data-ask-quick]",
+      dialog: "ask",
+      title: `Chat with ${name()}`,
+      text: `Here Plan today asked ${name()} to plan the rest of the day. Ask a follow-up below, typed or by voice. Whatever ${name()} offers to do, such as adding a task, waits for your yes.`,
     },
     {
       element: ".side-right",
@@ -94,22 +122,46 @@
 
   let guide = null;
 
-  // Once the part has slid onto the screen and stopped there (or after a while without), so
-  // the box is placed by where it stays.
+  // Once the part is on the screen and stays where it is (or after a while without): slid in
+  // with its screen, or loaded into a dialog just opened. So the box is placed by where it stays.
   const settled = (selector, then) => {
     const since = Date.now();
     let last = null;
     const check = () => {
       const box = selector && document.querySelector(selector)?.getBoundingClientRect();
-      const left = box ? Math.round(box.left) : null;
-      const inView = box && box.left >= -1 && box.right <= innerWidth + 1;
-      if ((inView && left === last) || Date.now() - since > 1500) then();
+      const at = box ? [box.left, box.top, box.height].map(Math.round).join() : null;
+      const inView = box && box.height > 0 && box.left >= -1 && box.right <= innerWidth + 1;
+      if ((inView && at === last) || Date.now() - since > 2500) then();
       else {
-        last = left;
-        setTimeout(check, 80);
+        last = at;
+        setTimeout(check, 100);
       }
     };
     check();
+  };
+
+  // A step in a dialog opens it with its `opener`, as a click would (a number's details, the
+  // brief, or Ask with a quick action's answer); any other step closes it. A number's dialog is
+  // the one its button names.
+  const dialogOf = (step) =>
+    step.opener && (step.dialog ?? document.querySelector(step.opener)?.dataset.open);
+
+  // An open dialog is in the page's top layer, over everything else: the dimming and the box
+  // move into it while a step shows, and back to the page before driver.js changes them, as it
+  // expects them there.
+  const parts = () => document.querySelectorAll(".driver-overlay, .driver-popover");
+  const lift = () => {
+    const host = document.querySelector("dialog[open]");
+    if (host) host.append(...parts());
+  };
+  const lower = () => document.body.append(...parts());
+
+  const dialogFor = (step) => {
+    lower();
+    const id = dialogOf(step);
+    const open = document.querySelector("dialog[open]");
+    if (open && open.id !== id) open.close();
+    if (id && !document.getElementById(id)?.open) document.querySelector(step.opener)?.click();
   };
 
   // The room around the lit part: enough for what `cover` names to show whole.
@@ -136,11 +188,15 @@
     const go = () => {
       const config = guide.getConfig();
       guide.setConfig({ ...config, stagePadding: padding(config.steps[index]) });
+      lower();
       if (guide.isActive()) guide.moveTo(index);
       else guide.drive(index);
     };
     const step = guide.getConfig().steps[index];
-    if (step?.pane !== undefined && narrow()) {
+    dialogFor(step);
+    if (step.opener) {
+      settled(step.element, go);
+    } else if (step.pane !== undefined && narrow()) {
       document.querySelector(`[data-pane="${step.pane}"]`)?.click();
       settled(step.element, go);
     } else {
@@ -151,6 +207,7 @@
   // The end, on purpose: on to the Get started steps, with the user's own data from then on.
   const finish = () => {
     remember(null);
+    lower();
     guide.destroy();
     const form = document.createElement("form");
     form.method = "post";
@@ -169,7 +226,10 @@
     keep.type = "button";
     keep.className = "tour-btn tour-primary";
     keep.textContent = "Keep going";
-    keep.addEventListener("click", () => guide.moveTo(guide.getActiveIndex() ?? 0));
+    keep.addEventListener("click", () => {
+      lower();
+      guide.moveTo(guide.getActiveIndex() ?? 0);
+    });
     const end = document.createElement("button");
     end.type = "button";
     end.className = "tour-btn tour-danger";
@@ -182,10 +242,12 @@
   const start = () => {
     if (!window.driver?.js || !document.getElementById("welcome")) return;
     // Each part is looked up when its step shows; one not on the page leaves the box centered.
-    const list = steps().map(({ element, cover, pane, title, text }) => ({
+    const list = steps().map(({ element, cover, pane, opener, dialog, title, text }) => ({
       element,
       cover,
       pane,
+      opener,
+      dialog,
       popover: { title, description: text },
     }));
     guide = window.driver.js.driver({
@@ -223,6 +285,7 @@
           confirmEnd(popover);
         });
         popover.wrapper.append(end);
+        lift();
       },
     });
     show(stored(list.length));
