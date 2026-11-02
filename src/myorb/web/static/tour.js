@@ -121,6 +121,9 @@
   };
 
   let guide = null;
+  // The step's box as last drawn, and whether it is asking "End the tour?" now.
+  let box = null;
+  let asking = false;
 
   // Once the part is on the screen and stays where it is (or after a while without): slid in
   // with its screen, or loaded into a dialog just opened. So the box is placed by where it stays.
@@ -216,8 +219,15 @@
     form.submit();
   };
 
-  // The × asks first, in the step's own box, with "Keep going" as the default.
+  const resume = () => {
+    lower();
+    guide.moveTo(guide.getActiveIndex() ?? 0);
+  };
+
+  // The × (or Esc) asks first, in the step's own box, with "Keep going" as the default.
   const confirmEnd = (popover) => {
+    asking = true;
+    popover.wrapper.querySelector(".tour-end")?.remove();
     popover.title.textContent = "End the tour?";
     popover.description.textContent =
       "You can take it again from Integrations. Next come the steps to set myOrb up.";
@@ -226,10 +236,7 @@
     keep.type = "button";
     keep.className = "tour-btn tour-primary";
     keep.textContent = "Keep going";
-    keep.addEventListener("click", () => {
-      lower();
-      guide.moveTo(guide.getActiveIndex() ?? 0);
-    });
+    keep.addEventListener("click", resume);
     const end = document.createElement("button");
     end.type = "button";
     end.className = "tour-btn tour-danger";
@@ -273,6 +280,8 @@
       },
       onPrevClick: () => show(Math.max(0, (guide.getActiveIndex() ?? 0) - 1)),
       onPopoverRender: (popover) => {
+        box = popover;
+        asking = false;
         // driver.js shows its own × only when it may close on its own; this one asks first.
         const end = document.createElement("button");
         end.type = "button";
@@ -280,10 +289,7 @@
         end.setAttribute("aria-label", "End the tour");
         end.title = "End the tour";
         end.textContent = "×";
-        end.addEventListener("click", () => {
-          end.remove();
-          confirmEnd(popover);
-        });
+        end.addEventListener("click", () => confirmEnd(popover));
         popover.wrapper.append(end);
         lift();
       },
@@ -291,13 +297,27 @@
     show(stored(list.length));
   };
 
-  // While it runs, keys go only to its box: no shortcut opens anything behind it.
+  // While it runs, ← and → step back and on, and Esc is its ×: it asks, and a second Esc keeps
+  // going. Other keys go only to its box, so no shortcut opens anything behind it.
+  const KEYS = { ArrowLeft: -1, ArrowRight: 1, Escape: 0 };
   document.addEventListener(
     "keydown",
     (event) => {
-      if (!guide?.isActive() || event.target.closest?.(".driver-popover")) return;
+      if (!guide?.isActive()) return;
+      const move = KEYS[event.key];
+      if (move === undefined && event.target.closest?.(".driver-popover")) return;
       event.preventDefault();
       event.stopImmediatePropagation();
+      if (move === undefined || event.repeat || !box) return;
+      if (move === 0) {
+        if (asking) resume();
+        else confirmEnd(box);
+        return;
+      }
+      if (asking) return;
+      // Not past the last step: its button ends the tour, and only a click on it does.
+      const index = (guide.getActiveIndex() ?? 0) + move;
+      if (index >= 0 && index < guide.getConfig().steps.length) show(index);
     },
     true,
   );
