@@ -3853,9 +3853,9 @@ button.history-hour {
   border-right-color: var(--surface-2);
 }
 
-/* driver.css hides what overflows the shown part's parent; a number's parent is a point it
-   hangs from, so the number would vanish. Only there: the screens' strip on a phone has to stay
-   a scroller. */
-.orb-widgets :has(> .driver-active-element) {
+/* driver.css hides what overflows the lit part's parent: a number hanging from its point, or
+   the numbers over the orb's edge, would be cut off. Not the screens' strip on a phone, which
+   has to stay a scroller. */
+#app :has(> .driver-active-element):not(.welcome-main) {
   overflow: visible !important;
 }

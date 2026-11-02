@@ -4,6 +4,7 @@
 // not end it; the step it was on is kept for next time.
 (() => {
   const KEY = "myorb-tour-step";
+  const PADDING = 6;
   const name = () => document.querySelector(".core-name")?.textContent.trim() || "myOrb";
 
   // `pane`: the screen it is on when they are side by side on a phone (welcome.html).
@@ -14,6 +15,8 @@
     },
     {
       element: ".orb",
+      // The numbers hang over the orb's edge: the lit part takes them in too.
+      cover: "#orb-widgets .node",
       pane: 1,
       title: "Your day around the orb",
       text: "Each number is one source: unread email, pull requests, tasks, the weather and more. A ▲ marks one that needs you.",
@@ -109,9 +112,33 @@
     check();
   };
 
+  // The room around the lit part: enough for what `cover` names to show whole.
+  const padding = (step) => {
+    const part = step.element && document.querySelector(step.element)?.getBoundingClientRect();
+    if (!part || !step.cover) return PADDING;
+    let room = PADDING;
+    for (const element of document.querySelectorAll(step.cover)) {
+      const box = element.getBoundingClientRect();
+      if (!box.width) continue;
+      const out = [
+        part.top - box.top,
+        box.bottom - part.bottom,
+        part.left - box.left,
+        box.right - part.right,
+      ];
+      room = Math.max(room, ...out.map((side) => Math.ceil(side) + PADDING));
+    }
+    return room;
+  };
+
   const show = (index) => {
     remember(index);
-    const go = () => (guide.isActive() ? guide.moveTo(index) : guide.drive(index));
+    const go = () => {
+      const config = guide.getConfig();
+      guide.setConfig({ ...config, stagePadding: padding(config.steps[index]) });
+      if (guide.isActive()) guide.moveTo(index);
+      else guide.drive(index);
+    };
     const step = guide.getConfig().steps[index];
     if (step?.pane !== undefined && narrow()) {
       document.querySelector(`[data-pane="${step.pane}"]`)?.click();
@@ -155,8 +182,9 @@
   const start = () => {
     if (!window.driver?.js || !document.getElementById("welcome")) return;
     // Each part is looked up when its step shows; one not on the page leaves the box centered.
-    const list = steps().map(({ element, pane, title, text }) => ({
+    const list = steps().map(({ element, cover, pane, title, text }) => ({
       element,
+      cover,
       pane,
       popover: { title, description: text },
     }));
@@ -174,7 +202,7 @@
       popoverClass: "myorb-tour",
       overlayColor: "#000",
       overlayOpacity: 0.72,
-      stagePadding: 6,
+      stagePadding: PADDING,
       stageRadius: 12,
       onNextClick: () => {
         const index = guide.getActiveIndex() ?? 0;
