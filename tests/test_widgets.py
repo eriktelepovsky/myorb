@@ -1295,6 +1295,17 @@ def test_the_report_follows_an_ignored_event(client: TestClient, fake_google: Fa
     assert "LuciA madero</strong> ignored" in report
 
 
+def test_an_email_keeps_its_light_look_on_a_dark_system():
+    from myorb.plugins.gmail.message import frame_document
+
+    email = (
+        "<style>@media (prefers-color-scheme: dark) { p { color: #fff } }</style>"
+        '<picture><source srcset="dark.png" media="(prefers-color-scheme:DARK)"></picture><p>Hi</p>'
+    )
+    document = frame_document(email, images=False)
+    assert "dark)" not in document.lower() and document.count("prefers-color-scheme: never") == 2
+
+
 def test_unsubscribe_and_images_in_the_email_header(client: TestClient, fake_google: FakeGoogle):
     from myorb.plugins.gmail.message import unsubscribe_link
 
