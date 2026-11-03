@@ -25,8 +25,11 @@ FRAME_STYLE = (
     # so its lines overlap.
     "html{overflow-y:hidden!important;overflow-x:auto;-webkit-text-size-adjust:100%;"
     "text-size-adjust:100%}"
+    # A long word or address breaks only when it would not fit, and an image shrinks to the
+    # frame only outside a table: either would squeeze an email's narrow cells (width: 1%) to
+    # nothing, so Bitbucket's "Failed" stood a letter a line and its icons were gone.
     "body{margin:0;padding:18px;font:15px/1.55 -apple-system,system-ui,sans-serif;color:#1d2125;"
-    "background:#fff;overflow-wrap:anywhere}img{max-width:100%;height:auto}"
+    "background:#fff;overflow-wrap:break-word}img:not(table img){max-width:100%;height:auto}"
     "table{max-width:100%}a{color:#0b6bcb}"
     "@media (max-width:480px){body{padding:10px}}"
 )
