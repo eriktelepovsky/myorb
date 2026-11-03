@@ -2635,6 +2635,63 @@ form.htmx-request .btn[type="submit"]::before {
   overflow: hidden;
 }
 
+/* An invitation in the email, answered in the calendar */
+.invite-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+.invite-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.invite-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--accent);
+  background: var(--surface-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-control);
+}
+
+.invite-main {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.invite-title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.invite-note {
+  margin: 0;
+  font-size: 13px;
+}
+
+.invite-clash {
+  color: var(--warn);
+}
+
+.invite-answers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+}
+
+.invite-answers .label {
+  margin-right: 4px;
+}
+
 .email-head {
   display: flex;
   gap: 12px;

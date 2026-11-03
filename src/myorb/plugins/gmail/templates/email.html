@@ -54,6 +54,36 @@
 <div class="email-draft-place" id="email-draft"></div>
 {% if not can_mark_read %}<p class="muted panel-narrow email-note">To mark emails as read, draft replies or forward emails from myOrb, connect this Google account again in <a href="/integrations">Integrations</a> and allow it.</p>{% endif %}
 
+{% if invitation %}
+{# An invitation, as in Gmail: answered in the calendar it is in; Google tells the organizer. #}
+<section class="panel panel-narrow email-message invite-card" aria-label="Invitation">
+  <div class="invite-head">
+    <span class="invite-icon" aria-hidden="true">{{ icon("calendar", 18) }}</span>
+    <div class="invite-main">
+      {% if invitation.when %}<div class="label invite-when">{{ invitation.when }}</div>{% endif %}
+      <div class="invite-title">{{ invitation.title }}</div>
+      {% if invitation.organizer %}<div class="t2">{{ invitation.organizer }} <span class="muted">· Organizer</span></div>{% endif %}
+      {% if invitation.guests %}<div class="t2 muted">{{ invitation.guests | join(", ") }}{% if invitation.more_guests %} and {{ invitation.more_guests }} more{% endif %}</div>{% endif %}
+    </div>
+  </div>
+  {% if invitation.cancelled %}<p class="invite-note">This event was cancelled.</p>{% endif %}
+  {% if invitation.clashes %}<p class="invite-note invite-clash">▲ At the same time in your calendar: {{ invitation.clashes | join(", ") }}</p>{% endif %}
+  {% if invitation.can_answer or invitation.url %}
+  <form class="invite-answers" method="post" action="/email/{{ account.id }}/{{ thread_id }}/invitation"{{ view_form("/email/%d/%s/invitation" % (account.id, thread_id)) }}>
+    {% if invitation.can_answer %}
+    <input type="hidden" name="event_id" value="{{ invitation.event_id }}">
+    <span class="label">Going?</span>
+    {% for value, label in [("accepted", "Yes"), ("declined", "No"), ("tentative", "Maybe")] %}
+    <button type="submit" name="response" value="{{ value }}" class="btn{% if invitation.response == value %} btn-primary{% endif %}" aria-pressed="{{ 'true' if invitation.response == value else 'false' }}">{% if invitation.response == value %}{{ icon("check", 14) }}{% endif %}{{ label }}</button>
+    {% endfor %}
+    {% endif %}
+    {% if invitation.url %}<a class="btn btn-ghost" href="{{ invitation.url }}" target="_blank" rel="noopener">{{ icon("external", 14) }}Open in Calendar</a>{% endif %}
+  </form>
+  {% endif %}
+  {% if invitation.needs_permission %}<p class="invite-note muted">To answer from myOrb, connect this Google account again in <a href="/integrations">Integrations</a> and allow changing the calendar.</p>{% endif %}
+</section>
+{% endif %}
+
 {% for message in messages %}
 {# The newest message is open; earlier ones of the conversation are folded, as in Gmail. #}
 <details class="panel panel-narrow email-message"{% if loop.last or message.unread %} open{% endif %}>

@@ -247,6 +247,16 @@ def read_message(message: dict[str, Any], timezone: tzinfo) -> dict[str, Any]:
         "",
     )
     inline = _inline(parts, body_html)
+    # A calendar invitation: in the email itself (Google Calendar) or as invite.ics (Outlook).
+    invite = next(
+        (
+            p
+            for p in parts
+            if p.get("mimeType", "").lower() == "text/calendar"
+            or p.get("filename", "").lower().endswith(".ics")
+        ),
+        None,
+    )
     shown_inside = {image["attachment_id"] for image in inline if image["attachment_id"]}
     name, address = parseaddr(_header(message, "From"))
     return {
@@ -271,6 +281,11 @@ def read_message(message: dict[str, Any], timezone: tzinfo) -> dict[str, Any]:
         "unsubscribe": unsubscribe_link(body_html),
         "text": text or html.unescape(message.get("snippet", "")),
         "inline": inline,
+        "invite": invite
+        and {
+            "data": invite.get("body", {}).get("data", ""),
+            "attachment_id": invite.get("body", {}).get("attachmentId", ""),
+        },
         # Images shown in the email are not listed again, as in Gmail.
         # Each by its part of the message, which stays the same (Gmail's attachment ids do not).
         "attachments": [
