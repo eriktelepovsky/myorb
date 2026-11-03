@@ -1,4 +1,5 @@
 {% extends "gmail/email_view.html" if in_view else "base.html" %}
+{% from "icons.html" import icon %}
 
 {% set subject = messages[-1].subject if messages else "Email" %}
 {% block title %}{{ subject }} · {{ assistant }}{% endblock %}
@@ -24,26 +25,26 @@
   <button type="button" class="btn" hx-get="/email/{{ account.id }}/{{ thread_id }}/forward" hx-target="#email-draft" hx-swap="outerHTML">↪&#xFE0E; Forward</button>
   {% endif %}
   {# Open in Gmail, Unsubscribe (when the email's text has such a link) and Show images: in the
-     row on a wide screen (images on the right), behind ⋮ on a phone so the buttons keep to one
+     row on a wide screen, behind ⋮ on a phone so the buttons keep to one
      line (welcome.css hides the one not in use). Unsubscribe hides where it comes from with
      referrerpolicy, not rel=noreferrer: with that, an installed app on iOS first opens a blank
      page Safari calls an invalid address. #}
-  {% macro more(end) %}
-  <a class="btn" href="{{ gmail_url }}" target="_blank" rel="noopener">Open in Gmail</a>
-  {% if unsubscribe %}<a class="btn" href="{{ unsubscribe }}" target="_blank" rel="noopener" referrerpolicy="no-referrer" title="Opens the sender's page to unsubscribe">Unsubscribe</a>{% endif %}
+  {% macro more() %}
+  <a class="btn" href="{{ gmail_url }}" target="_blank" rel="noopener">{{ icon("external", 14) }}Open in Gmail</a>
+  {% if unsubscribe %}<a class="btn" href="{{ unsubscribe }}" target="_blank" rel="noopener" referrerpolicy="no-referrer" title="Opens the sender's page to unsubscribe">{{ icon("unsubscribe", 14) }}Unsubscribe</a>{% endif %}
   {% if blocked_domains %}
-  <form class="{{ end }}" method="post" action="/email/{{ account.id }}/{{ thread_id }}/images"{{ view_form("/email/%d/%s/images" % (account.id, thread_id)) }}>
+  <form method="post" action="/email/{{ account.id }}/{{ thread_id }}/images"{{ view_form("/email/%d/%s/images" % (account.id, thread_id)) }}>
     {% for domain in blocked_domains %}<input type="hidden" name="domain" value="{{ domain }}">{% endfor %}
-    <button type="submit" class="btn" title="Images from {{ blocked_domains | join(', ') }} will show from now on">Show images</button>
+    <button type="submit" class="btn" title="Images from {{ blocked_domains | join(', ') }} will show from now on">{{ icon("image", 14) }}Show images</button>
   </form>
   {% elif not images and messages | selectattr("html") | rejectattr("images") | list %}
-  <a class="btn {{ end }}" href="/email/{{ account.id }}/{{ thread_id }}?images=true"{% if in_view %} hx-get="/email/{{ account.id }}/{{ thread_id }}?images=true" hx-target="#page-view"{% endif %}>Show images</a>
+  <a class="btn" href="/email/{{ account.id }}/{{ thread_id }}?images=true"{% if in_view %} hx-get="/email/{{ account.id }}/{{ thread_id }}?images=true" hx-target="#page-view"{% endif %}>{{ icon("image", 14) }}Show images</a>
   {% endif %}
   {% endmacro %}
-  <span class="email-actions-wide">{{ more("email-actions-end") }}</span>
+  <span class="email-actions-wide">{{ more() }}</span>
   <details class="email-more">
     <summary class="btn" aria-label="More actions"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></summary>
-    <div class="email-more-menu">{{ more("") }}</div>
+    <div class="email-more-menu">{{ more() }}</div>
   </details>
 </div>
 </div>
