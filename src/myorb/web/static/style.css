@@ -2454,10 +2454,6 @@ form.htmx-request .btn[type="submit"]::before {
   margin: 0;
 }
 
-.email-actions .email-actions-end {
-  margin-left: auto;
-}
-
 /* The rest of the actions: in the row on a wide screen, behind ⋮ on a phone. */
 .email-actions-wide {
   display: contents;

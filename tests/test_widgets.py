@@ -1313,7 +1313,7 @@ def test_unsubscribe_and_images_in_the_email_header(client: TestClient, fake_goo
     page = client.get("/email/1/t1").text
     head = page.split('<div class="email-top">')[1].split("</div>\n</div>")[0]
     # The email blocks its images: the button is in the header too; it has no unsubscribe link.
-    assert "Show images" in head and "email-actions-end" in head
+    assert "Show images" in head
     assert "Unsubscribe" not in head
     # On a phone the rest of the actions are behind ⋮.
     assert '<details class="email-more">' in head and 'aria-label="More actions"' in head
