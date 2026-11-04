@@ -30,7 +30,7 @@
      referrerpolicy, not rel=noreferrer: with that, an installed app on iOS first opens a blank
      page Safari calls an invalid address. #}
   {% macro more() %}
-  <a class="btn" href="{{ gmail_url }}" target="_blank" rel="noopener">{{ icon("external", 14) }}Open in Gmail</a>
+  {% if gmail_url %}<a class="btn" href="{{ gmail_url }}" target="_blank" rel="noopener">{{ icon("external", 14) }}Open in Gmail</a>{% endif %}
   {% if unsubscribe %}<a class="btn" href="{{ unsubscribe }}" target="_blank" rel="noopener" referrerpolicy="no-referrer" title="Opens the sender's page to unsubscribe">{{ icon("unsubscribe", 14) }}Unsubscribe</a>{% endif %}
   {% if blocked_domains %}
   <form method="post" action="/email/{{ account.id }}/{{ thread_id }}/images"{{ view_form("/email/%d/%s/images" % (account.id, thread_id)) }}>
@@ -52,7 +52,7 @@
 {% if marked_read %}<div class="alert alert-success panel-narrow email-done" role="status"><span class="alert-tag">✓ DONE</span><span>Marked as read.</span></div>{% endif %}
 {% if error %}<div class="alert alert-error panel-narrow" role="alert"><span class="alert-tag">✕ ERROR</span><span>{{ error }}</span></div>{% endif %}
 <div class="email-draft-place" id="email-draft"></div>
-{% if not can_mark_read %}<p class="muted panel-narrow email-note">To mark emails as read, draft replies or forward emails from myOrb, connect this Google account again in <a href="/integrations">Integrations</a> and allow it.</p>{% endif %}
+{% if not can_mark_read and not demo %}<p class="muted panel-narrow email-note">To mark emails as read, draft replies or forward emails from myOrb, connect this Google account again in <a href="/integrations">Integrations</a> and allow it.</p>{% endif %}
 
 {% if invitation %}
 {# An invitation, as in Gmail: answered in the calendar it is in; Google tells the organizer. #}
