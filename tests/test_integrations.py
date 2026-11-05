@@ -488,6 +488,20 @@ def test_jira_waiting_for_the_customer_is_not_counted(client: TestClient, apis: 
     assert ">Waiting for customer</span>" in text
 
 
+def test_jira_postponed_is_not_counted_and_listed_last(client: TestClient, apis: FakeApis):
+    postponed = issue("WEB-9", "new")
+    postponed["fields"]["status"]["name"] = "Postponed"
+    backlog = issue("WEB-3", "new")
+    backlog["fields"]["status"]["name"] = "Backlog"
+    jira_site(apis, "acme", [postponed, backlog, issue("WEB-1", "indeterminate")])
+    connect_jira(client, "acme")
+    text = client.get("/welcome/widgets").text
+    assert '<span class="node-value">1</span>' in text  # WEB-1
+    assert "assigned to you · 1 more in the backlog · 1 postponed" in text
+    assert text.index("WEB-1") < text.index("WEB-3") < text.index("WEB-9")
+    assert ">Postponed</span>" in text
+
+
 def test_a_rate_limit_is_a_note_not_a_problem(client: TestClient, apis: FakeApis):
     jira_site(apis, "dev", [issue("TRP-1", "new")])
     connect_jira(client, "dev")
