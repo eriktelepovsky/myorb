@@ -476,6 +476,18 @@ def test_jira_backlog_is_not_counted(client: TestClient, apis: FakeApis):
     assert ">Backlog</span>" in text
 
 
+def test_jira_waiting_for_the_customer_is_not_counted(client: TestClient, apis: FakeApis):
+    waiting = issue("SUP-18", "indeterminate", due=date.today() - timedelta(days=3))
+    waiting["fields"]["status"]["name"] = "Waiting for customer"
+    jira_site(apis, "acme", [waiting, issue("SUP-20", "indeterminate"), issue("SUP-7", "new")])
+    connect_jira(client, "acme")
+    text = client.get("/welcome/widgets").text
+    assert '<span class="node-value">2</span>' in text  # SUP-20 and SUP-7
+    assert "assigned to you · 1 waiting for the customer" in text and "overdue" not in text
+    assert text.index("SUP-20") < text.index("SUP-7") < text.index("SUP-18")  # below the rest
+    assert ">Waiting for customer</span>" in text
+
+
 def test_a_rate_limit_is_a_note_not_a_problem(client: TestClient, apis: FakeApis):
     jira_site(apis, "dev", [issue("TRP-1", "new")])
     connect_jira(client, "dev")

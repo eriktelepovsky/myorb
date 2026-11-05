@@ -39,6 +39,8 @@ FIELDS = "summary,status,priority,duedate,updated,project"
 MAX_ISSUES = 200
 PAGE = 100
 URGENT_PRIORITIES = {"Highest", "Blocker", "Critical"}
+# Statuses where the next step is someone else's (Jira Service Management's customer).
+WAITING_STATUSES = {"waiting for customer"}
 
 
 @dataclass(frozen=True)
@@ -57,6 +59,8 @@ class Issue:
     # In the backlog: still to do, and in status "Backlog" or, in a project with sprints, not
     # in an active one.
     backlog: bool = False
+    # Waiting for the customer: listed, but not the user's to do now.
+    waiting: bool = False
 
 
 def site_url(value: str) -> str:
@@ -211,6 +215,7 @@ class Jira(Provider):
                     workspace=workspace_name(site),
                     project=project.get("name") or item["key"].split("-")[0],
                     backlog=backlog,
+                    waiting=status.get("name", "").lower() in WAITING_STATUSES,
                 )
             )
         return issues
@@ -278,21 +283,32 @@ class JiraPlugin(Plugin):
             return WidgetData(value=None, **status)
         today = context.now.date()
         issues = [issue for r in loaded for issue in r.data]
-        # The orb counts what is being worked on; the backlog is listed, but last and apart.
-        active = [i for i in issues if not i.backlog]
+        # The orb counts what is being worked on; what waits for the customer and the backlog
+        # are listed, but last and apart.
+        active = [i for i in issues if not i.backlog and not i.waiting]
+        waiting = [i for i in issues if i.waiting and not i.backlog]
         backlog = [i for i in issues if i.backlog]
         overdue = [i for i in active if is_overdue(i, today)]
         urgent = [i for i in active if i.priority in URGENT_PRIORITIES]
         in_progress = [i for i in active if i.category == "indeterminate"]
-        # Overdue first, then in progress, then the rest in Jira's priority order; backlog last.
+        # Overdue first, then in progress, then the rest in Jira's priority order; then what
+        # waits for the customer; backlog last.
         ordered = sorted(
             issues,
-            key=lambda i: (i.backlog, not is_overdue(i, today), i.category != "indeterminate"),
+            key=lambda i: (
+                i.backlog,
+                i.waiting,
+                not is_overdue(i, today),
+                i.category != "indeterminate",
+            ),
         )
         rows = []
         for issue in ordered:
+            counted = not issue.backlog and not issue.waiting
             if issue.backlog:
                 badge, tone = "Backlog", "neutral"
+            elif issue.waiting:
+                badge, tone = issue.status, "neutral"
             elif is_overdue(issue, today):
                 badge, tone = f"▲ Due {issue.due:%-d %b}", "fail"
             else:
@@ -304,9 +320,10 @@ class JiraPlugin(Plugin):
             tags = tuple(
                 tag
                 for tag, applies in (
-                    ("overdue", is_overdue(issue, today)),
-                    ("progress", issue.category == "indeterminate"),
-                    ("active", not issue.backlog),
+                    ("overdue", counted and is_overdue(issue, today)),
+                    ("progress", counted and issue.category == "indeterminate"),
+                    ("active", counted),
+                    ("waiting", issue.waiting and not issue.backlog),
                     ("backlog", issue.backlog),
                 )
                 if applies
@@ -331,6 +348,7 @@ class JiraPlugin(Plugin):
                 for p in (
                     "assigned to you",
                     f"{len(overdue)} overdue" if overdue else "",
+                    f"{len(waiting)} waiting for the customer" if waiting else "",
                     f"{len(backlog)} more in the backlog" if backlog else "",
                 )
                 if p
@@ -363,7 +381,10 @@ class JiraPlugin(Plugin):
         issues = [i for r in loaded for i in r.data]
         backlog = sum(1 for i in issues if i.backlog)
         lines = [f"{backlog} more issues wait in the backlog."] if backlog else []
-        for issue in [i for i in issues if not i.backlog][:20]:
+        waiting = [f"{i.key} {i.summary}" for i in issues if i.waiting and not i.backlog]
+        if waiting:
+            lines.append(f"Waiting for the customer, not the user's to do: {'; '.join(waiting)}.")
+        for issue in [i for i in issues if not i.backlog and not i.waiting][:20]:
             notes = [issue.status, issue.priority, issue.workspace]
             if is_overdue(issue, today):
                 notes.insert(0, f"overdue since {issue.due:%-d %b}")
