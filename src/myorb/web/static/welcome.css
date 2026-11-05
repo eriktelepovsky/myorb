@@ -261,6 +261,11 @@ body:has(#welcome) {
    the capital letters, so with equal padding the uppercase text sits exactly in the middle. */
 .clock-extra .header-item {
   display: inline-block;
+  /* A long event title ends in "…" rather than reaching over the greeting. */
+  max-width: min(440px, 30vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
   padding: 7px 10px;
   line-height: 1;
   text-box: trim-both cap alphabetic;
@@ -998,6 +1003,7 @@ a.ti:hover .t1 {
   /* A long event title ends in "…" instead of widening the page. */
   .clock-extra .header-item {
     display: block;
+    max-width: none;
     overflow: hidden;
     text-overflow: ellipsis;
   }
