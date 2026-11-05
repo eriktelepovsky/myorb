@@ -1910,6 +1910,22 @@ button.modal-stat[aria-pressed="true"] {
   content: "No more emails";
 }
 
+/* A picture before a row's title, e.g. a video's thumbnail, in its 16:9. */
+.row-with-image {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.row-image {
+  flex: none;
+  width: 96px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--line-soft);
+  border-radius: 6px;
+}
+
 .row-mark {
   margin-right: 6px;
   color: var(--warn);
