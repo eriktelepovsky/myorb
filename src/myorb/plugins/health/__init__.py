@@ -3,6 +3,7 @@
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 from fastapi import APIRouter
 from sqlalchemy import select
@@ -26,6 +27,8 @@ ICON = "M3 12h4l2-5 4 10 2-5h6"
 SETUP = Link("Set up health", "/integrations/health")
 # Strava activities listed in the details; "km this week" counts the last 7 days of them.
 HISTORY_DAYS = 30
+# The picture of an activity without a route: an empty tile.
+EMPTY_IMAGE = "data:image/svg+xml," + quote('<svg xmlns="http://www.w3.org/2000/svg"/>')
 # Which number the orb shows, chosen on the Health page. Automatic is last night's sleep, or
 # without it the week's kilometres from Strava, or without Strava today's steps.
 ORB = "health_orb"
@@ -123,6 +126,7 @@ class HealthPlugin(Plugin):
         steps = next((d.steps for d in days if d.day == today and d.steps is not None), None)
         week_ago = context.now - timedelta(days=7)
         week_km = round(sum(a.distance_km for a in activities if a.start >= week_ago), 1)
+        routes = any(a.route for a in activities)
         rows = [
             Row(
                 a.name,
@@ -138,6 +142,9 @@ class HealthPlugin(Plugin):
                 badge=f"{a.start.astimezone(context.now.tzinfo):%a %-d %b}",
                 tone="info",
                 url=a.url,
+                # With any route shown, every activity gets a picture so the titles line up:
+                # one without GPS (e.g. on a treadmill) an empty one.
+                image=strava.route_image(a.route) or (EMPTY_IMAGE if routes else ""),
             )
             # Newest first.
             for a in sorted(activities, key=lambda a: a.start, reverse=True)
