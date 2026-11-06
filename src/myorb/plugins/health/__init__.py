@@ -1,5 +1,6 @@
 """Health: sleep and steps from Apple Health (sent by an iPhone Shortcut) and Strava activities."""
 
+import re
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
@@ -46,6 +47,11 @@ def sleep_text(minutes: int | None) -> str:
         return "—"
     hours, rest = divmod(minutes, 60)
     return f"{hours}h{rest:02d}"
+
+
+def sport_name(sport: str) -> str:
+    """Strava's sport type in words: "TrailRun" -> "Trail Run"."""
+    return re.sub(r"(?<=[a-z])(?=[A-Z])", " ", sport) or "Activity"
 
 
 class HealthPlugin(Plugin):
@@ -147,6 +153,7 @@ class HealthPlugin(Plugin):
                 # one without GPS (e.g. on a treadmill) an empty one.
                 image=strava.route_image(a.route) or (EMPTY_IMAGE if routes else ""),
                 subtitle_icon=SPORT_ICONS.get(a.sport, ""),
+                group=sport_name(a.sport),
             )
             # Newest first.
             for a in sorted(activities, key=lambda a: a.start, reverse=True)
@@ -164,6 +171,7 @@ class HealthPlugin(Plugin):
                     )
                     if p
                 ),
+                group="Days",
             )
             for d in days
         ]
@@ -204,6 +212,9 @@ class HealthPlugin(Plugin):
             ],
             list_title=f"Last {HISTORY_DAYS} days",
             rows=rows,
+            # Narrowed to one sport, or to the days of sleep and steps.
+            group_label="activities",
+            group_icons={sport_name(a.sport): SPORT_ICONS.get(a.sport, "") for a in activities},
             action=Link("Open Strava", "https://www.strava.com/dashboard")
             if strava_connected
             else None,

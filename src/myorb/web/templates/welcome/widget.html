@@ -50,7 +50,7 @@
         <button type="button" class="group-toggle" data-group-toggle aria-expanded="false"><span class="label">{{ data.group_label }}</span><span class="group-current trunc">All {{ data.group_label }}</span><span class="group-count">{{ data.rows | length }}</span><span class="group-caret" aria-hidden="true">▸</span></button>
         <button type="button" class="group-item" data-group-value="" aria-pressed="true"><span class="trunc">All {{ data.group_label }}</span><span class="group-count">{{ data.rows | length }}</span></button>
         {% for name in groups | unique | sort %}
-        <button type="button" class="group-item" data-group-value="{{ name }}" aria-pressed="false"><span class="trunc">{% if data.group_images[name] %}<img class="group-image" src="{{ data.group_images[name] }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% endif %}{{ name }}</span><span class="group-count">{{ groups | select("equalto", name) | list | length }}</span></button>
+        <button type="button" class="group-item" data-group-value="{{ name }}" aria-pressed="false"><span class="trunc">{% if data.group_images[name] %}<img class="group-image" src="{{ data.group_images[name] }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% endif %}{% if data.group_icons[name] %}<span class="group-icon" aria-hidden="true">{{ data.group_icons[name] | safe }}</span>{% endif %}{{ name }}</span><span class="group-count">{{ groups | select("equalto", name) | list | length }}</span></button>
         {# Its subgroups (e.g. Jira projects), indented, when there are more than one. #}
         {% set subgroups = data.rows | selectattr("group", "equalto", name) | map(attribute="subgroup") | select | list %}
         {% if subgroups | unique | list | length > 1 %}
