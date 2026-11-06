@@ -1934,6 +1934,13 @@ button.modal-stat[aria-pressed="true"] {
   border-radius: 6px;
 }
 
+.row-subtitle-icon svg {
+  width: 13px;
+  height: 13px;
+  margin-right: 5px;
+  vertical-align: -2px;
+}
+
 .row-mark {
   margin-right: 6px;
   color: var(--warn);
