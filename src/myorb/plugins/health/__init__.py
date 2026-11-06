@@ -22,6 +22,7 @@ from myorb.plugins.base import (
 )
 from myorb.plugins.health import strava
 from myorb.plugins.health.models import HealthDay
+from myorb.plugins.health.sport_icons import SPORT_ICONS
 
 ICON = "M3 12h4l2-5 4 10 2-5h6"
 SETUP = Link("Set up health", "/integrations/health")
@@ -145,6 +146,7 @@ class HealthPlugin(Plugin):
                 # With any route shown, every activity gets a picture so the titles line up:
                 # one without GPS (e.g. on a treadmill) an empty one.
                 image=strava.route_image(a.route) or (EMPTY_IMAGE if routes else ""),
+                subtitle_icon=SPORT_ICONS.get(a.sport, ""),
             )
             # Newest first.
             for a in sorted(activities, key=lambda a: a.start, reverse=True)

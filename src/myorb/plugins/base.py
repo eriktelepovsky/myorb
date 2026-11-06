@@ -115,6 +115,9 @@ class Row:
     history: tuple[HistoryDay, ...] = ()
     # A picture before the title, e.g. a video's thumbnail: the address of an image.
     image: str = ""
+    # A glyph before the subtitle, e.g. a Strava activity's sport: an <svg> filled with
+    # currentColor. Shown as markup, so only ever one of the plugin's own, never fetched text.
+    subtitle_icon: str = ""
 
 
 @dataclass(frozen=True)

@@ -208,6 +208,8 @@ def test_strava_connects_refreshes_and_shows_activities(client: TestClient, apis
     # Each activity shows its route; one without GPS an empty tile, so the titles line up.
     assert text.count('<img class="row-image" src="data:image/svg+xml,') == 2
     assert "polyline" in text
+    # A run shows Strava's glyph for it; a workout, which has none, shows none.
+    assert text.count('<span class="row-subtitle-icon" aria-hidden="true"><svg') == 1
     # Without sleep from Apple Health the number is the week's kilometres, and says so.
     assert '<span class="node-value">8.4</span>' in text
     assert '<span class="node-label">Km · week</span>' in text
