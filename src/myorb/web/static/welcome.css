@@ -1592,6 +1592,14 @@ button.modal-stat[aria-pressed="true"] {
   border-radius: 6px;
 }
 
+.group-image {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border-radius: 50%;
+}
+
 .group-item:hover {
   background: rgb(255 255 255 / 3%);
 }
