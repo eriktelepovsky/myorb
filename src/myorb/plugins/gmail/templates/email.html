@@ -92,7 +92,7 @@
       <span class="t1">{{ message.sender }}{% if message.address and message.address != message.sender %} <span class="muted">&lt;{{ message.address }}&gt;</span>{% endif %}</span>
       <span class="t2 trunc">To {{ message.to }}{% if message.cc %} · Cc {{ message.cc }}{% endif %}</span>
     </span>
-    <span class="email-when">{% if message.starred %}<span class="email-star" title="Starred">★</span>{% endif %}{% if message.unread %}<span class="badge badge-info">Unread</span>{% endif %}<span class="label">{{ message.received.strftime("%-d %b %Y, %H:%M") }}</span></span>
+    <span class="email-when">{% if message.unread %}<span class="badge badge-info">Unread</span>{% endif %}<span class="email-date"><span class="label">{{ message.received.strftime("%-d %b %Y, %H:%M") }}</span>{% if can_mark_read %}{% include "gmail/star.html" %}{% elif message.starred %}<span class="email-star" title="Starred">★</span>{% endif %}</span></span>
   </summary>
   {% if message.html %}
   {# No scripts; same origin only so the page can size the frame to its content. #}

@@ -535,8 +535,20 @@
       const form = document.querySelector("#page-view [data-mark-read]");
       if (!form) return goView(1);
       htmx.trigger(form, "submit");
+    } else if (event.key.toLowerCase() === "s" && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      // S: stars or unstars the newest message, as in Gmail.
+      const stars = document.querySelectorAll("#page-view [data-email-star]");
+      if (!stars.length) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      stars[stars.length - 1].click();
     }
   }, true);
+
+  // A message's star sits in its head, which folds the message when clicked: the star only stars.
+  document.addEventListener("click", (event) => {
+    if (event.target.closest?.("[data-email-star]")) event.preventDefault();
+  });
 
   // Marked as read in the view, by M or the button alike: on to the next email. Listened on
   // the form itself, as the answer replaces it before the request ends. Not marked (Gmail said

@@ -2542,6 +2542,41 @@ form.htmx-request .btn[type="submit"]::before {
   color: var(--warn);
 }
 
+/* The date with the message's star right of it, as in Gmail */
+.email-date {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.email-star-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -6px -6px -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-3);
+  cursor: pointer;
+}
+
+.email-star-btn:hover {
+  background: var(--surface-3);
+  color: var(--text-2);
+}
+
+.email-star-btn.is-starred,
+.email-star-btn.is-starred:hover {
+  color: var(--warn);
+}
+
+.email-star-btn.htmx-request {
+  opacity: 0.5;
+}
+
 /* The reply panel, between the email's notes and its messages */
 
 .email-draft-place:empty {

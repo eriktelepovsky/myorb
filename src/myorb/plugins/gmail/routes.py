@@ -381,6 +381,35 @@ async def mark_read(request: Request, account_id: int, thread_id: str) -> Respon
     return RedirectResponse(f"/email/{account_id}/{thread_id}?read=true", status_code=303)
 
 
+@router.post("/email/{account_id}/{thread_id}/star/{message_id}", response_class=HTMLResponse)
+async def star(
+    request: Request, account_id: int, thread_id: str, message_id: str, starred: bool
+) -> Response:
+    """Stars or unstars one message, as its star in Gmail; answers with the star as it is now."""
+    account = await _account(request, account_id)
+    if MODIFY_SCOPE not in account.scopes:
+        raise HTTPException(
+            status_code=403, detail="Connect the Google account again to allow starring."
+        )
+    change = "addLabelIds" if starred else "removeLabelIds"
+    context: dict[str, Any] = {"account": account, "thread_id": thread_id}
+    try:
+        await request.app.state.google.request_json(
+            account,
+            "POST",
+            f"{API}/messages/{quote(message_id, safe='')}/modify",
+            API_NAME,
+            json={change: ["STARRED"]},
+        )
+    except GoogleError as error:
+        # The star as it was, saying why: an error status would change nothing on the page.
+        context |= {"message": {"id": message_id, "starred": not starred}, "star_error": str(error)}
+    else:
+        context["message"] = {"id": message_id, "starred": starred}
+        request.app.state.cache.invalidate(f"google:{account.id}:gmail")
+    return request.app.state.templates.TemplateResponse(request, "gmail/star.html", context)
+
+
 # A reply, written by Claude or the user, saved as a Gmail draft (myOrb never sends a reply)
 
 
