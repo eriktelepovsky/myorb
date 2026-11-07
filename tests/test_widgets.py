@@ -1576,8 +1576,9 @@ def test_an_unchanged_conversation_is_not_read_again():
 def test_a_message_is_starred_as_in_gmail(client: TestClient, fake_google: FakeGoogle):
     connect_google(client, fake_google)
     page = client.get("/email/1/t1").text
-    star = re.search(r'hx-post="(/email/1/t1/star/[^"?]+)\?starred=true"', page)
-    assert star and "data-email-star" in page
+    # The newest message's star, right of the buttons; Pepper's reply is starred already.
+    star = re.search(r'hx-post="(/email/1/t1/star/m-pepper)\?starred=false"', page)
+    assert star and page.index("data-email-star") < page.index("email-message")
     modified.clear()
     answer = client.post(f"{star[1]}?starred=true").text
     message_id = star[1].rsplit("/", 1)[1]
