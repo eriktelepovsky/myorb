@@ -53,6 +53,11 @@ def gmail_api(request: httpx2.Request) -> httpx2.Response:
     if path == "/threads":
         assert "is:unread" in query(request)["q"][0]
         return httpx2.Response(200, json={"threads": [{"id": "t1"}]})
+    if path.startswith("/messages/") and path.endswith("/modify"):
+        if modify_fails:
+            return httpx2.Response(500, json={"error": {"message": "Backend Error"}})
+        modified.append(f"{path} {request.content.decode()}")
+        return httpx2.Response(200, json={})
     if path == "/threads/t1/modify":
         assert request.method == "POST"
         if modify_fails:
@@ -1566,3 +1571,25 @@ def test_an_unchanged_conversation_is_not_read_again():
     read.clear()
     asyncio.run(fetch_inbox(Google(), account, day, known))  # type: ignore[arg-type]
     assert read == []
+
+
+def test_a_message_is_starred_as_in_gmail(client: TestClient, fake_google: FakeGoogle):
+    connect_google(client, fake_google)
+    page = client.get("/email/1/t1").text
+    star = re.search(r'hx-post="(/email/1/t1/star/[^"?]+)\?starred=true"', page)
+    assert star and "data-email-star" in page
+    modified.clear()
+    answer = client.post(f"{star[1]}?starred=true").text
+    message_id = star[1].rsplit("/", 1)[1]
+    assert modified == [f'/messages/{message_id}/modify {{"addLabelIds":["STARRED"]}}']
+    assert 'aria-pressed="true"' in answer and "starred=false" in answer and "<html" not in answer
+    modified.clear()
+    assert "starred=true" in client.post(f"{star[1]}?starred=false").text
+    assert modified[0].endswith('{"removeLabelIds":["STARRED"]}')
+    # Gmail said no: the star stays as it was and says why.
+    modify_fails.append(True)
+    try:
+        failed = client.post(f"{star[1]}?starred=true").text
+    finally:
+        modify_fails.clear()
+    assert 'aria-pressed="false"' in failed and "Google returned an error" in failed
