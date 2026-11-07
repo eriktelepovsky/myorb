@@ -2542,35 +2542,26 @@ form.htmx-request .btn[type="submit"]::before {
   color: var(--warn);
 }
 
-/* The date with the message's star right of it, as in Gmail */
-.email-date {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.email-star-btn {
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  margin: -6px -6px -6px 0;
+/* The star at the right end of the buttons, under the way back. */
+.email-actions .btn.email-star-btn {
+  flex: none;
+  width: 36px;
+  margin-left: auto;
   padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: none;
   color: var(--text-3);
-  cursor: pointer;
 }
 
-.email-star-btn:hover {
-  background: var(--surface-3);
+.email-actions .btn.email-star-btn:hover {
   color: var(--text-2);
 }
 
-.email-star-btn.is-starred,
-.email-star-btn.is-starred:hover {
+.email-actions .btn.email-star-btn.is-starred {
   color: var(--warn);
+}
+
+/* On a phone ⋮ goes right after it. */
+.email-star-btn + .email-more {
+  margin-left: 0;
 }
 
 .email-star-btn.htmx-request {
