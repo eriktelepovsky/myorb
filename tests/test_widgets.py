@@ -1531,3 +1531,38 @@ def test_few_requests_go_to_google_at_once(monkeypatch: pytest.MonkeyPatch):
 
     asyncio.run(run())
     assert most == CONCURRENT
+
+
+def test_an_unchanged_conversation_is_not_read_again():
+    # Reading every unread conversation on each refresh went over Gmail's rate limit.
+    from myorb.connections.google_accounts import GoogleAccount
+    from myorb.plugins.gmail import fetch_inbox
+
+    history = {"t1": "5", "t2": "7"}
+    read: list[str] = []
+
+    class Google:
+        async def get_json(self, account, url: str, api_name: str, params=None):  # noqa: ANN001
+            path = url.removeprefix(GMAIL)
+            if path == "/threads":
+                return {"threads": [{"id": t, "historyId": h} for t, h in history.items()]}
+            if path.startswith("/threads/"):
+                read.append(path.removeprefix("/threads/"))
+                headers = [{"name": "From", "value": "pepper@stark.example"}]
+                message = {"id": f"m-{read[-1]}", "threadId": read[-1], "labelIds": ["UNREAD"]}
+                return {"messages": [{**message, "payload": {"headers": headers}}]}
+            return {}
+
+    account = GoogleAccount(1, "tony@stark.example", frozenset())
+    day = datetime(2026, 11, 7, tzinfo=TZ)
+    known: dict = {}
+    first = asyncio.run(fetch_inbox(Google(), account, day, known))  # type: ignore[arg-type]
+    assert sorted(read) == ["t1", "t2"] and len(first["latest_unread"]) == 2
+    history["t2"] = "9"
+    del history["t1"]
+    read.clear()
+    again = asyncio.run(fetch_inbox(Google(), account, day, known))  # type: ignore[arg-type]
+    assert read == ["t2"] and len(again["latest_unread"]) == 1 and set(known) == {"t2"}
+    read.clear()
+    asyncio.run(fetch_inbox(Google(), account, day, known))  # type: ignore[arg-type]
+    assert read == []
