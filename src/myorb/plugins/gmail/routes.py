@@ -220,6 +220,19 @@ def _in_view(request: Request) -> bool:
 async def read_email(
     request: Request, account_id: int, thread_id: str, images: bool = False, read: bool = False
 ) -> Response:
+    return await _email(request, account_id, thread_id, images=images, read=read)
+
+
+async def _email(
+    request: Request,
+    account_id: int,
+    thread_id: str,
+    images: bool = False,
+    read: bool = False,
+    error: str = "",
+) -> Response:
+    """The email's page, or the email over the details; `error` says what the button the user
+    pressed in it could not do."""
     account = await _account(request, account_id)
     context: dict[str, Any] = {
         "account": account,
@@ -233,6 +246,7 @@ async def read_email(
         "in_view": _in_view(request),
         "frame_document": frame_document,
         "size_label": size_label,
+        "error": error,
     }
     try:
         thread = await request.app.state.google.get_json(
@@ -347,6 +361,10 @@ async def mark_read(request: Request, account_id: int, thread_id: str) -> Respon
             json={"removeLabelIds": ["UNREAD"]},
         )
     except GoogleError as error:
+        # Over the details, the email again with what went wrong: an answer with an error
+        # status would change nothing there, and the button would seem to do nothing.
+        if _in_view(request):
+            return await _email(request, account_id, thread_id, error=str(error))
         raise HTTPException(status_code=502, detail=str(error)) from error
     request.app.state.cache.invalidate(f"google:{account.id}:gmail")
     request.app.state.plugins["gmail"].marked_read(account.email, thread_id)

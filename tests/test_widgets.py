@@ -31,6 +31,8 @@ def query(request: httpx2.Request) -> dict[str, list[str]]:
 
 # What was sent to mark threads as read.
 modified: list[str] = []
+# Set, Gmail turns marking as read down.
+modify_fails: list[bool] = []
 # Drafts saved in Gmail.
 drafts: list[dict] = []
 
@@ -53,6 +55,8 @@ def gmail_api(request: httpx2.Request) -> httpx2.Response:
         return httpx2.Response(200, json={"threads": [{"id": "t1"}]})
     if path == "/threads/t1/modify":
         assert request.method == "POST"
+        if modify_fails:
+            return httpx2.Response(500, json={"error": {"message": "Backend Error"}})
         modified.append(request.content.decode())
         return httpx2.Response(200, json={"id": "t1"})
     if path == "/drafts/d1":
@@ -852,6 +856,20 @@ def test_email_opens_over_the_details(client: TestClient, fake_google: FakeGoogl
     assert response.headers["HX-Trigger"] == '{"myorb:row-done": "/email/1/t1"}'
     shown = client.post("/email/1/t1/images", data={"domain": "stark.example"}, headers=view)
     assert "Images from stark.example are shown." in shown.text and "<html" not in shown.text
+
+
+def test_marking_read_says_why_it_failed(client: TestClient, fake_google: FakeGoogle):
+    connect_google(client, fake_google)
+    view = {"HX-Request": "true", "HX-Target": "page-view"}
+    modify_fails.append(True)
+    try:
+        response = client.post("/email/1/t1/read", headers=view)
+    finally:
+        modify_fails.clear()
+    # The email again, still unread, with what went wrong; the view does not go on.
+    assert response.status_code == 200 and "HX-Trigger" not in response.headers
+    assert "✕ ERROR" in response.text and "Marked as read." not in response.text
+    assert 'hx-post="/email/1/t1/read"' in response.text
 
 
 def test_marking_read_needs_the_permission(client: TestClient, fake_google: FakeGoogle):
