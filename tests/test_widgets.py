@@ -1501,3 +1501,33 @@ def test_an_invitation_without_its_event_shows_what_the_email_says():
     assert when(date(2099, 11, 5), date(2099, 11, 6), True) == "Thu 5 Nov"
     # An answer to the user's own invitation is no invitation.
     assert read_ics(ICS.replace("METHOD:REQUEST", "METHOD:REPLY"))["METHOD"] == "REPLY"
+
+
+def test_few_requests_go_to_google_at_once(monkeypatch: pytest.MonkeyPatch):
+    # Gmail turns down more than a few at once for one account, as a rate limit.
+    from myorb.connections.google_accounts import CONCURRENT, GoogleAccount, GoogleAccounts
+
+    under_way = most = 0
+
+    async def slow(request: httpx2.Request) -> httpx2.Response:
+        nonlocal under_way, most
+        under_way += 1
+        most = max(most, under_way)
+        await asyncio.sleep(0.01)
+        under_way -= 1
+        return httpx2.Response(200, json={})
+
+    async def run() -> None:
+        async with httpx2.AsyncClient(transport=httpx2.MockTransport(slow)) as http:
+            accounts = GoogleAccounts(None, None, http)  # type: ignore[arg-type]
+
+            async def token(account: GoogleAccount) -> str:
+                return "token"
+
+            monkeypatch.setattr(accounts, "_access_token", token)
+            account = GoogleAccount(1, "tony@stark.example", frozenset())
+            requests = [accounts.get_json(account, GMAIL, "Gmail API") for _ in range(12)]
+            await asyncio.gather(*requests)
+
+    asyncio.run(run())
+    assert most == CONCURRENT

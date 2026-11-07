@@ -256,7 +256,8 @@ async def _email(
         context["messages"] = [read_message(m, timezone) for m in thread.get("messages", [])]
         await _fetch_inline(request, account, context["messages"])
     except GoogleError as error:
-        context["error"] = str(error)
+        # Just marked as read, the email is done with: the view goes on to the next one.
+        context["error"] = "" if read else str(error)
         context["messages"] = []
     allowed = set(await _image_domains(request))
     with_html = [m for m in context["messages"] if m["html"]]
