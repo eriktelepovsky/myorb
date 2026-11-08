@@ -1577,13 +1577,22 @@ def test_a_message_is_starred_as_in_gmail(client: TestClient, fake_google: FakeG
     connect_google(client, fake_google)
     page = client.get("/email/1/t1").text
     # The newest message's star, right of the buttons; Pepper's reply is starred already.
-    star = re.search(r'hx-post="(/email/1/t1/star/m-pepper)\?starred=false"', page)
+    star = re.search(r'hx-post="(/email/1/t1/star/m-pepper)\?starred=false&place=top', page)
     assert star and page.index("data-email-star") < page.index("email-message")
+    # Each message has its own right of its date, Tony's not starred.
+    assert "/star/m-tony?starred=true&place=head" in page
+    assert "/star/m-pepper?starred=false&place=head&twin=true" in page
     modified.clear()
-    answer = client.post(f"{star[1]}?starred=true").text
+    answer = client.post(f"{star[1]}?starred=true&place=top&twin=true").text
     message_id = star[1].rsplit("/", 1)[1]
     assert modified == [f'/messages/{message_id}/modify {{"addLabelIds":["STARRED"]}}']
     assert 'aria-pressed="true"' in answer and "starred=false" in answer and "<html" not in answer
+    # Its twin right of the date follows it.
+    assert 'id="star-head-m-pepper"' in answer and 'hx-swap-oob="true"' in answer
+    modified.clear()
+    tony = client.post("/email/1/t1/star/m-tony?starred=true&place=head").text
+    assert modified[0].startswith("/messages/m-tony/modify") and "hx-swap-oob" not in tony
+    assert 'id="star-head-m-tony"' in tony and 'aria-pressed="true"' in tony
     modified.clear()
     assert "starred=true" in client.post(f"{star[1]}?starred=false").text
     assert modified[0].endswith('{"removeLabelIds":["STARRED"]}')

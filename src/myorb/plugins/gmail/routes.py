@@ -6,7 +6,7 @@ import base64
 import binascii
 import json
 import time
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 from urllib.parse import quote
 
 from fastapi import APIRouter, Form, HTTPException, Request
@@ -383,16 +383,29 @@ async def mark_read(request: Request, account_id: int, thread_id: str) -> Respon
 
 @router.post("/email/{account_id}/{thread_id}/star/{message_id}", response_class=HTMLResponse)
 async def star(
-    request: Request, account_id: int, thread_id: str, message_id: str, starred: bool
+    request: Request,
+    account_id: int,
+    thread_id: str,
+    message_id: str,
+    starred: bool,
+    place: Literal["top", "head"] = "top",
+    twin: bool = False,
 ) -> Response:
-    """Stars or unstars one message, as its star in Gmail; answers with the star as it is now."""
+    """Stars or unstars one message, as its star in Gmail; answers with the star as it is now,
+    and with its twin when the message has one (the newest: right of the buttons and its date)."""
     account = await _account(request, account_id)
     if MODIFY_SCOPE not in account.scopes:
         raise HTTPException(
             status_code=403, detail="Connect the Google account again to allow starring."
         )
     change = "addLabelIds" if starred else "removeLabelIds"
-    context: dict[str, Any] = {"account": account, "thread_id": thread_id}
+    context: dict[str, Any] = {
+        "account": account,
+        "thread_id": thread_id,
+        "place": place,
+        "twin": twin,
+        "answer": True,
+    }
     try:
         await request.app.state.google.request_json(
             account,

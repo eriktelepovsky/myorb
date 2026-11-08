@@ -9,27 +9,29 @@
 {% block content %}
 {# Over the details, forms answer with the email again rather than taking the page away. #}
 {% macro view_form(path) %}{% if in_view %} hx-post="{{ path }}" hx-target="#page-view"{% endif %}{% endmacro %}
-{# The subject and what to do with the email stay at the top while it scrolls. #}
+{# What to do with the email stays at the top while it scrolls; the subject, however long, goes
+   up out of sight, and the way back then shows at the end of the buttons (app.js). #}
 <div class="email-top">
 <div class="page-title email-title">
   <div><div class="label">Email · {{ account.email }}</div><h1 class="email-subject">{{ subject }}</h1></div>
-  {% if in_view %}<button type="button" class="icon-btn" data-close-view aria-label="Back to the emails"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>{% else %}<a class="icon-btn" href="/#detail-gmail-inbox" aria-label="Back to the emails"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>{% endif %}
+{% macro back(class) %}{% if in_view %}<button type="button" class="{{ class }}" data-close-view aria-label="Back to the emails"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>{% else %}<a class="{{ class }}" href="/#detail-gmail-inbox" aria-label="Back to the emails"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>{% endif %}{% endmacro %}
+  {{ back("icon-btn") }}
 </div>
 
 <div class="email-actions panel-narrow">
   {% if can_mark_read and messages | selectattr("unread") | list %}
   <form method="post" action="/email/{{ account.id }}/{{ thread_id }}/read"{{ view_form("/email/%d/%s/read" % (account.id, thread_id)) }} data-mark-read><button type="submit" class="btn btn-primary"{% if in_view %} title="Marks it as read and opens the next email (M)" aria-keyshortcuts="m"{% endif %}>Mark as read{% if in_view %}<kbd class="btn-key">M</kbd>{% endif %}</button></form>
   {% endif %}
-  {% if can_draft and messages %}
-  <button type="button" class="btn" hx-get="/email/{{ account.id }}/{{ thread_id }}/draft" hx-target="#email-draft" hx-swap="outerHTML">↩&#xFE0E; Reply</button>
-  <button type="button" class="btn" hx-get="/email/{{ account.id }}/{{ thread_id }}/forward" hx-target="#email-draft" hx-swap="outerHTML">↪&#xFE0E; Forward</button>
-  {% endif %}
-  {# Open in Gmail, Unsubscribe (when the email's text has such a link) and Show images: in the
-     row on a wide screen, behind ⋮ on a phone so the buttons keep to one
+  {# Reply, Forward, Open in Gmail, Unsubscribe (when the email's text has such a link) and Show
+     images: in the row on a wide screen, behind ⋮ on a phone so the buttons keep to one
      line (welcome.css hides the one not in use). Unsubscribe hides where it comes from with
      referrerpolicy, not rel=noreferrer: with that, an installed app on iOS first opens a blank
      page Safari calls an invalid address. #}
   {% macro more() %}
+  {% if can_draft and messages %}
+  <button type="button" class="btn" hx-get="/email/{{ account.id }}/{{ thread_id }}/draft" hx-target="#email-draft" hx-swap="outerHTML">↩&#xFE0E; Reply</button>
+  <button type="button" class="btn" hx-get="/email/{{ account.id }}/{{ thread_id }}/forward" hx-target="#email-draft" hx-swap="outerHTML">↪&#xFE0E; Forward</button>
+  {% endif %}
   {% if gmail_url %}<a class="btn" href="{{ gmail_url }}" target="_blank" rel="noopener">{{ icon("external", 14) }}Open in Gmail</a>{% endif %}
   {% if unsubscribe %}<a class="btn" href="{{ unsubscribe }}" target="_blank" rel="noopener" referrerpolicy="no-referrer" title="Opens the sender's page to unsubscribe">{{ icon("unsubscribe", 14) }}Unsubscribe</a>{% endif %}
   {% if blocked_domains %}
@@ -42,11 +44,12 @@
   {% endif %}
   {% endmacro %}
   <span class="email-actions-wide">{{ more() }}</span>
-  {% if can_mark_read and messages %}{% with message = messages[-1] %}{% include "gmail/star.html" %}{% endwith %}{% endif %}
+  {% if can_mark_read and messages %}{% with message = messages[-1], place = "top", twin = True %}{% include "gmail/star.html" %}{% endwith %}{% endif %}
   <details class="email-more">
     <summary class="btn" aria-label="More actions"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></summary>
     <div class="email-more-menu">{{ more() }}</div>
   </details>
+  {{ back("btn email-back") }}
 </div>
 </div>
 
@@ -93,7 +96,7 @@
       <span class="t1">{{ message.sender }}{% if message.address and message.address != message.sender %} <span class="muted">&lt;{{ message.address }}&gt;</span>{% endif %}</span>
       <span class="t2 trunc">To {{ message.to }}{% if message.cc %} · Cc {{ message.cc }}{% endif %}</span>
     </span>
-    <span class="email-when">{% if message.unread %}<span class="badge badge-info">Unread</span>{% endif %}{% if message.starred %}<span class="email-star" title="Starred">★</span>{% endif %}<span class="label">{{ message.received.strftime("%-d %b %Y, %H:%M") }}</span></span>
+    <span class="email-when">{% if message.unread %}<span class="badge badge-info">Unread</span>{% endif %}{% if message.starred and not can_mark_read %}<span class="email-star" title="Starred">★</span>{% endif %}{% if can_mark_read %}<span class="email-date"><span class="label">{{ message.received.strftime("%-d %b %Y, %H:%M") }}</span>{% with place = "head", twin = loop.last %}{% include "gmail/star.html" %}{% endwith %}</span>{% else %}<span class="label">{{ message.received.strftime("%-d %b %Y, %H:%M") }}</span>{% endif %}</span>
   </summary>
   {% if message.html %}
   {# No scripts; same origin only so the page can size the frame to its content. #}

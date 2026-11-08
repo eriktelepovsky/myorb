@@ -545,6 +545,11 @@
     }
   }, true);
 
+  // A message's star sits in its head, which folds the message when clicked: the star only stars.
+  document.addEventListener("click", (event) => {
+    if (event.target.closest?.("summary [data-email-star]")) event.preventDefault();
+  });
+
   // Marked as read in the view, by M or the button alike: on to the next email. Listened on
   // the form itself, as the answer replaces it before the request ends. Not marked (Gmail said
   // no, and the email came back with why), it stays.
