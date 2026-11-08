@@ -2564,8 +2564,13 @@ form.htmx-request .btn[type="submit"]::before {
   margin-left: 0;
 }
 
+/* While it waits, only the star, dimmed: no spinner beside it. */
 .email-star-btn.htmx-request {
   opacity: 0.5;
+}
+
+.email-star-btn.htmx-request::before {
+  content: none;
 }
 
 /* The reply panel, between the email's notes and its messages */
