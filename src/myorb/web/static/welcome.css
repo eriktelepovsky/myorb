@@ -1841,7 +1841,7 @@ button.modal-stat[aria-pressed="true"] {
 
 /* Its head sticks to the very top of the window, over the padding, from edge to edge. */
 .page-view .email-top {
-  top: calc(-1 * var(--view-top));
+  top: calc(-1 * var(--view-top) - var(--email-title-height, 0px));
   margin: calc(-1 * var(--view-top)) calc(-1 * var(--view-pad)) 0;
   padding: var(--view-top) var(--view-pad) 14px;
   background: #0b0f14;

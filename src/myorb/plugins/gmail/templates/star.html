@@ -1,3 +1,8 @@
-{# The newest message's star, as in Gmail: right of the email's buttons, pressed to star or
-   unstar it. #}
-<button type="button" class="btn email-star-btn{% if message.starred %} is-starred{% endif %}" hx-post="/email/{{ account.id }}/{{ thread_id }}/star/{{ message.id }}?starred={{ 'false' if message.starred else 'true' }}" hx-swap="outerHTML" aria-pressed="{{ 'true' if message.starred else 'false' }}" aria-label="Starred" title="{{ star_error or ('Starred' if message.starred else 'Not starred') }}" data-email-star><svg width="18" height="18" viewBox="0 0 24 24" fill="{{ 'currentColor' if message.starred else 'none' }}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></button>
+{# A message's star, as in Gmail, pressed to star or unstar it: right of the email's buttons
+   for the newest message ("top"), right of each message's date ("head"). The newest message
+   has both, so an answer about it brings the other one up to date as well ("twin"). #}
+{% macro star_button(place, oob=False) %}
+<button type="button" id="star-{{ place }}-{{ message.id }}" class="{{ 'btn email-star-btn' if place == 'top' else 'email-head-star' }}{% if message.starred %} is-starred{% endif %}" hx-post="/email/{{ account.id }}/{{ thread_id }}/star/{{ message.id }}?starred={{ 'false' if message.starred else 'true' }}&place={{ place }}{% if twin %}&twin=true{% endif %}" hx-swap="outerHTML"{% if oob %} hx-swap-oob="true"{% endif %} aria-pressed="{{ 'true' if message.starred else 'false' }}" aria-label="Starred" title="{{ star_error or ('Starred' if message.starred else 'Not starred') }}" data-email-star><svg width="{{ 18 if place == 'top' else 16 }}" height="{{ 18 if place == 'top' else 16 }}" viewBox="0 0 24 24" fill="{{ 'currentColor' if message.starred else 'none' }}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></button>
+{%- endmacro %}
+{{ star_button(place) }}
+{% if answer and twin %}{{ star_button("head" if place == "top" else "top", oob=True) }}{% endif %}

@@ -2438,10 +2438,11 @@ form.htmx-request .btn[type="submit"]::before {
   gap: 8px;
 }
 
+/* It sticks with the subject above the top: only the buttons stay (app.js measures it). */
 .email-top {
   position: sticky;
   z-index: 2;
-  top: 0;
+  top: calc(-1 * var(--email-title-height, 0px));
   padding-bottom: 14px;
   background: var(--bg);
 }
@@ -2564,9 +2565,53 @@ form.htmx-request .btn[type="submit"]::before {
   margin-left: 0;
 }
 
+/* The way back at the end of the buttons, once the one beside the subject is out of sight */
+.email-actions .btn.email-back {
+  display: none;
+  flex: none;
+  width: 36px;
+  padding: 0;
+}
+
+.email-top.is-scrolled .email-actions .btn.email-back {
+  display: inline-flex;
+}
+
 /* While it waits, only the star, dimmed: no spinner beside it. */
-.email-star-btn.htmx-request {
+.email-star-btn.htmx-request,
+.email-head-star.htmx-request {
   opacity: 0.5;
+}
+
+/* Each message's own star, right of its date, as in Gmail */
+.email-date {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.email-head-star {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -6px -6px -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-3);
+  cursor: pointer;
+}
+
+.email-head-star:hover {
+  background: var(--surface-3);
+  color: var(--text-2);
+}
+
+.email-head-star.is-starred,
+.email-head-star.is-starred:hover {
+  color: var(--warn);
 }
 
 .email-star-btn.htmx-request::before {
