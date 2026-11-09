@@ -1839,7 +1839,7 @@ button.modal-stat[aria-pressed="true"] {
   margin-top: 14px;
 }
 
-/* Its head sticks to the very top of the window, over the padding, from edge to edge. */
+/* Its head runs over the padding from edge to edge, and on a phone sticks to the very top. */
 .page-view .email-top {
   top: calc(-1 * var(--view-top) - var(--email-title-height, 0px));
   margin: calc(-1 * var(--view-top)) calc(-1 * var(--view-pad)) 0;
