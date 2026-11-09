@@ -9,8 +9,9 @@
 {% block content %}
 {# Over the details, forms answer with the email again rather than taking the page away. #}
 {% macro view_form(path) %}{% if in_view %} hx-post="{{ path }}" hx-target="#page-view"{% endif %}{% endmacro %}
-{# What to do with the email stays at the top while it scrolls; the subject, however long, goes
-   up out of sight, and the way back then shows at the end of the buttons (app.js). #}
+{# The subject and what to do with the email stay at the top while it scrolls. On a phone the
+   subject, however long, goes up out of sight, and the way back then shows at the end of the
+   buttons (app.js). #}
 <div class="email-top">
 <div class="page-title email-title">
   <div><div class="label">Email · {{ account.email }}</div><h1 class="email-subject">{{ subject }}</h1></div>
