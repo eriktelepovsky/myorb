@@ -2438,17 +2438,18 @@ form.htmx-request .btn[type="submit"]::before {
   gap: 8px;
 }
 
+/* The subject and the buttons stay at the top while the email scrolls. On a phone only the
+   buttons do: the subject, however long, goes up out of sight (app.js measures it). */
 .email-top {
+  position: sticky;
+  z-index: 2;
+  top: 0;
   padding-bottom: 14px;
   background: var(--bg);
 }
 
-/* On a phone it sticks with the subject above the top: only the buttons stay (app.js measures
-   it). A wide screen has room for the email without it. */
 @media (max-width: 760px) {
   .email-top {
-    position: sticky;
-    z-index: 2;
     top: calc(-1 * var(--email-title-height, 0px));
   }
 }

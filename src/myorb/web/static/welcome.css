@@ -1839,13 +1839,19 @@ button.modal-stat[aria-pressed="true"] {
   margin-top: 14px;
 }
 
-/* Its head runs over the padding from edge to edge, and on a phone sticks to the very top. */
+/* Its head sticks to the very top of the window, over the padding, from edge to edge. */
 .page-view .email-top {
-  top: calc(-1 * var(--view-top) - var(--email-title-height, 0px));
+  top: calc(-1 * var(--view-top));
   margin: calc(-1 * var(--view-top)) calc(-1 * var(--view-pad)) 0;
   padding: var(--view-top) var(--view-pad) 14px;
   background: #0b0f14;
   border-bottom: 1px solid var(--line);
+}
+
+@media (max-width: 760px) {
+  .page-view .email-top {
+    top: calc(-1 * var(--view-top) - var(--email-title-height, 0px));
+  }
 }
 
 /* Its buttons take the width of the window, as the email does: on one line while they fit. */
