@@ -2438,13 +2438,19 @@ form.htmx-request .btn[type="submit"]::before {
   gap: 8px;
 }
 
-/* It sticks with the subject above the top: only the buttons stay (app.js measures it). */
 .email-top {
-  position: sticky;
-  z-index: 2;
-  top: calc(-1 * var(--email-title-height, 0px));
   padding-bottom: 14px;
   background: var(--bg);
+}
+
+/* On a phone it sticks with the subject above the top: only the buttons stay (app.js measures
+   it). A wide screen has room for the email without it. */
+@media (max-width: 760px) {
+  .email-top {
+    position: sticky;
+    z-index: 2;
+    top: calc(-1 * var(--email-title-height, 0px));
+  }
 }
 
 .email-top .email-actions {
@@ -2573,8 +2579,10 @@ form.htmx-request .btn[type="submit"]::before {
   padding: 0;
 }
 
-.email-top.is-scrolled .email-actions .btn.email-back {
-  display: inline-flex;
+@media (max-width: 760px) {
+  .email-top.is-scrolled .email-actions .btn.email-back {
+    display: inline-flex;
+  }
 }
 
 /* While it waits, only the star, dimmed: no spinner beside it. */
