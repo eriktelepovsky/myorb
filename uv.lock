@@ -861,7 +861,7 @@ wheels = [
 
 [[package]]
 name = "myorb"
-version = "0.89.2"
+version = "0.89.3"
 source = { editable = "." }
 dependencies = [
     { name = "aiosqlite" },
