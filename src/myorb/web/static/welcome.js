@@ -167,7 +167,7 @@
 
   // No zooming with two fingers: Safari on iOS runs out of memory drawing the home screen that
   // much larger, and closes the page. A picture in an email opens on its own to be zoomed; an
-  // email's frame stops its own pinches, which never come up here (app.js).
+  // email's frame is kept from zooming by app.js.
   document.addEventListener("gesturestart", (event) => {
     if (document.getElementById("welcome")) event.preventDefault();
   });

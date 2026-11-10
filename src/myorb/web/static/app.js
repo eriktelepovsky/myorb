@@ -197,33 +197,15 @@ document.addEventListener("click", (event) => {
   });
 });
 
-// A picture in an email, tapped (not one of a link), opens whole in a new tab, where it can be
-// zoomed. Over the home screen the email itself can't be: Safari on iOS would run out of memory
-// (welcome.js), so neither can its frame there. A picture sent inside the email is a data: one,
-// which a tab can't open: it goes as a blob, kept for a minute to be loaded.
-const emailPictureWatch = new WeakSet();
-function watchEmailPictures(frame) {
+// Over the home screen an email's frame is not zoomed with two fingers either: Safari on iOS
+// would run out of memory (welcome.js). A picture in it is a link to itself, to be zoomed in a
+// tab of its own (message.py).
+const emailFrameTouch = new WeakSet();
+function stopEmailPinch(frame) {
   const page = frame.contentDocument;
-  if (!page || emailPictureWatch.has(page)) return;
-  emailPictureWatch.add(page);
-  if (frame.closest("#welcome, .page-view")) {
-    page.documentElement.style.touchAction = "pan-x pan-y";
-    page.addEventListener("gesturestart", (event) => event.preventDefault());
-  }
-  page.addEventListener("click", (event) => {
-    const picture = event.target.closest?.("img");
-    if (!picture || picture.closest("a[href]") || !picture.naturalWidth) return;
-    let address = picture.currentSrc || picture.src;
-    if (address.startsWith("data:")) {
-      const [head, data] = address.split(",", 2);
-      const type = head.slice(5).split(";")[0] || "image/png";
-      const text = head.includes(";base64") ? atob(data) : decodeURIComponent(data);
-      address = URL.createObjectURL(new Blob([Uint8Array.from(text, (c) => c.charCodeAt(0))], { type }));
-      setTimeout(() => URL.revokeObjectURL(address), 60000);
-    }
-    event.preventDefault();
-    window.open(address, "_blank", "noopener,noreferrer");
-  });
+  if (!page || emailFrameTouch.has(page) || !frame.closest("#welcome, .page-view")) return;
+  emailFrameTouch.add(page);
+  page.documentElement.style.touchAction = "pan-x pan-y";
 }
 
 // An email's frame is as tall as its content, so the page scrolls rather than the frame; a
@@ -233,7 +215,7 @@ const emailFrameWatch = new WeakMap();
 function sizeEmailFrame(frame) {
   const page = frame.contentDocument?.documentElement;
   if (!page || !frame.offsetWidth) return;
-  watchEmailPictures(frame);
+  stopEmailPinch(frame);
   // What scrolls around the frame (the view over the details, else the page) keeps its place:
   // the frame at no height for a moment would take it back to the top.
   const scroller = frame.closest(".page-view") || document.scrollingElement;
