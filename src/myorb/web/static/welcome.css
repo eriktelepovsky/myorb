@@ -786,24 +786,26 @@ a.ti:hover .t1 {
 }
 
 /* Zoomed in on a phone: no background, nothing moving and no glow, else Safari runs out of
-   memory drawing it all that much larger (welcome.js). */
+   memory drawing it all that much larger (welcome.js). What has a mask, a blur behind it or a
+   filter Safari draws whole rather than in tiles, at that size: those go flat meanwhile. */
 .is-zoomed .welcome .bgl {
   display: none;
+}
+
+/* Over every rule of its own, e.g. a side column's fade at the edge it is cut off at. */
+.is-zoomed .welcome *,
+.is-zoomed .welcome *::before,
+.is-zoomed .welcome *::after {
+  mask: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  will-change: auto !important;
 }
 
 .is-zoomed .welcome *,
 .is-zoomed .welcome *::before,
 .is-zoomed .welcome *::after {
   animation-play-state: paused;
-}
-
-.is-zoomed .welcome .layer {
-  filter: none;
-}
-
-.is-zoomed .welcome .orb,
-.is-zoomed .welcome .side {
-  will-change: auto;
 }
 
 .stage:hover .spin,
