@@ -165,6 +165,14 @@
     }
   }
 
+  // Zoomed in with two fingers on a phone, Safari draws the orb's glowing lines and the moving
+  // background that much larger, the orb 20 times a second: it runs out of memory and closes
+  // the page. Meanwhile the orb stands still and the background is left out (welcome.css).
+  const zoomed = () => (window.visualViewport?.scale || 1) > 1.01;
+  window.visualViewport?.addEventListener("resize", () => {
+    document.documentElement.classList.toggle("is-zoomed", zoomed());
+  });
+
   let orbTimer = null;
 
   function startOrb() {
@@ -177,7 +185,7 @@
     drawOrb();
     if (reducedMotion || orbTimer) return;
     orbTimer = setInterval(() => {
-      if (document.hidden || !document.getElementById("welcome")) return;
+      if (document.hidden || zoomed() || !document.getElementById("welcome")) return;
       stepSignals();
       orb.angle = (orb.angle + 0.006) % (Math.PI * 2);
       orb.time += 0.05;

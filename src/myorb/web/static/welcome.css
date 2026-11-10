@@ -785,6 +785,27 @@ a.ti:hover .t1 {
   to { transform: rotate(-360deg); }
 }
 
+/* Zoomed in on a phone: no background, nothing moving and no glow, else Safari runs out of
+   memory drawing it all that much larger (welcome.js). */
+.is-zoomed .welcome .bgl {
+  display: none;
+}
+
+.is-zoomed .welcome *,
+.is-zoomed .welcome *::before,
+.is-zoomed .welcome *::after {
+  animation-play-state: paused;
+}
+
+.is-zoomed .welcome .layer {
+  filter: none;
+}
+
+.is-zoomed .welcome .orb,
+.is-zoomed .welcome .side {
+  will-change: auto;
+}
+
 .stage:hover .spin,
 .stage:focus-within .spin {
   animation-play-state: paused;
