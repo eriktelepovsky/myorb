@@ -167,11 +167,22 @@
 
   // Zoomed in with two fingers on a phone, Safari draws the orb's glowing lines and the moving
   // background that much larger, the orb 20 times a second: it runs out of memory and closes
-  // the page. Meanwhile the orb stands still and the background is left out (welcome.css).
-  const zoomed = () => (window.visualViewport?.scale || 1) > 1.01;
-  window.visualViewport?.addEventListener("resize", () => {
-    document.documentElement.classList.toggle("is-zoomed", zoomed());
-  });
+  // the page. Meanwhile the orb stands still and the background is left out (welcome.css):
+  // from the moment two fingers touch, as Safari tells of the zoom only once they let go.
+  let pinching = false;
+  const zoomed = () => pinching || (window.visualViewport?.scale || 1) > 1.01;
+  const markZoomed = () => document.documentElement.classList.toggle("is-zoomed", zoomed());
+  const pinch = (on) => (event) => {
+    pinching = on === null ? event.touches.length > 1 : on;
+    markZoomed();
+  };
+  document.addEventListener("touchstart", pinch(null), { capture: true, passive: true });
+  document.addEventListener("touchend", pinch(null), { capture: true, passive: true });
+  document.addEventListener("touchcancel", pinch(null), { capture: true, passive: true });
+  document.addEventListener("gesturestart", pinch(true), { passive: true });
+  document.addEventListener("gestureend", pinch(false), { passive: true });
+  window.visualViewport?.addEventListener("resize", markZoomed);
+  window.visualViewport?.addEventListener("scroll", markZoomed);
 
   let orbTimer = null;
 
