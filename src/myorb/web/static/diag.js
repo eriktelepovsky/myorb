@@ -54,7 +54,7 @@
   }
   const raf = window.requestAnimationFrame.bind(window);
   window.requestAnimationFrame = (fn) => raf(wrap("frame", fn));
-  const watched = new Set(["resize", "scroll", "touchstart", "touchmove", "toggle", "load"]);
+  const watched = new Set(["resize", "scroll", "touchstart", "touchmove", "touchend", "gesturestart", "gestureend", "toggle", "load"]);
   const wrapped = new WeakMap();
   const add = EventTarget.prototype.addEventListener;
   const remove = EventTarget.prototype.removeEventListener;
@@ -85,6 +85,7 @@
     run.nodes = document.getElementsByTagName("*").length;
     run.frames = document.getElementsByTagName("iframe").length;
     run.animations = document.getAnimations?.().length || 0;
+    run.light = document.documentElement.classList.contains("is-zoomed");
     save();
   }, 500);
   add.call(window, "pagehide", () => {
@@ -99,7 +100,7 @@
     .map((key) => `${previous.counts[key]}× ${Math.round(previous.ms[key])} ms  ${key}`);
   const report = [
     `myOrb ${previous.version} · crashed after ${previous.seconds} s · ${previous.started}`,
-    `zoom ${previous.scale} (most ${previous.maxScale}) · ${previous.viewport}`,
+    `zoom ${previous.scale} (most ${previous.maxScale}) · ${previous.viewport} · light ${previous.light}`,
     `${previous.nodes} elements · ${previous.frames} frames · ${previous.animations} animations · page stuck up to ${previous.maxLag} ms`,
     "",
     ...top,
