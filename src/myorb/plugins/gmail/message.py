@@ -30,7 +30,7 @@ FRAME_STYLE = (
     # nothing, so Bitbucket's "Failed" stood a letter a line and its icons were gone.
     "body{margin:0;padding:18px;font:15px/1.55 -apple-system,system-ui,sans-serif;color:#1d2125;"
     "background:#fff;overflow-wrap:break-word}img:not(table img){max-width:100%;height:auto}"
-    "table{max-width:100%}a{color:#0b6bcb}"
+    "table{max-width:100%}a{color:#0b6bcb}img:not(a img){cursor:zoom-in}"
     "@media (max-width:480px){body{padding:10px}}"
 )
 DARK_SCHEME = re.compile(r"prefers-color-scheme\s*:\s*dark", re.I)
