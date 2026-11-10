@@ -785,27 +785,11 @@ a.ti:hover .t1 {
   to { transform: rotate(-360deg); }
 }
 
-/* Zoomed in on a phone: no background, nothing moving and no glow, else Safari runs out of
-   memory drawing it all that much larger (welcome.js). What has a mask, a blur behind it or a
-   filter Safari draws whole rather than in tiles, at that size: those go flat meanwhile. */
-.is-zoomed .welcome .bgl {
-  display: none;
-}
-
-/* Over every rule of its own, e.g. a side column's fade at the edge it is cut off at. */
-.is-zoomed .welcome *,
-.is-zoomed .welcome *::before,
-.is-zoomed .welcome *::after {
-  mask: none !important;
-  backdrop-filter: none !important;
-  filter: none !important;
-  will-change: auto !important;
-}
-
-.is-zoomed .welcome *,
-.is-zoomed .welcome *::before,
-.is-zoomed .welcome *::after {
-  animation-play-state: paused;
+/* No zooming with two fingers on the home screen (welcome.js), down to what scrolls inside
+   it. Rules of their own still win. */
+:where(html:has(#welcome)),
+:where(html:has(#welcome)) * {
+  touch-action: pan-x pan-y;
 }
 
 .stage:hover .spin,

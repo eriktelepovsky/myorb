@@ -165,24 +165,12 @@
     }
   }
 
-  // Zoomed in with two fingers on a phone, Safari draws the orb's glowing lines and the moving
-  // background that much larger, the orb 20 times a second: it runs out of memory and closes
-  // the page. Meanwhile the orb stands still and the background is left out (welcome.css):
-  // from the moment two fingers touch, as Safari tells of the zoom only once they let go.
-  let pinching = false;
-  const zoomed = () => pinching || (window.visualViewport?.scale || 1) > 1.01;
-  const markZoomed = () => document.documentElement.classList.toggle("is-zoomed", zoomed());
-  const pinch = (on) => (event) => {
-    pinching = on === null ? event.touches.length > 1 : on;
-    markZoomed();
-  };
-  document.addEventListener("touchstart", pinch(null), { capture: true, passive: true });
-  document.addEventListener("touchend", pinch(null), { capture: true, passive: true });
-  document.addEventListener("touchcancel", pinch(null), { capture: true, passive: true });
-  document.addEventListener("gesturestart", pinch(true), { passive: true });
-  document.addEventListener("gestureend", pinch(false), { passive: true });
-  window.visualViewport?.addEventListener("resize", markZoomed);
-  window.visualViewport?.addEventListener("scroll", markZoomed);
+  // No zooming with two fingers: Safari on iOS runs out of memory drawing the home screen that
+  // much larger, and closes the page. A picture in an email opens on its own to be zoomed; an
+  // email's frame stops its own pinches, which never come up here (app.js).
+  document.addEventListener("gesturestart", (event) => {
+    if (document.getElementById("welcome")) event.preventDefault();
+  });
 
   let orbTimer = null;
 
@@ -196,7 +184,7 @@
     drawOrb();
     if (reducedMotion || orbTimer) return;
     orbTimer = setInterval(() => {
-      if (document.hidden || zoomed() || !document.getElementById("welcome")) return;
+      if (document.hidden || !document.getElementById("welcome")) return;
       stepSignals();
       orb.angle = (orb.angle + 0.006) % (Math.PI * 2);
       orb.time += 0.05;
