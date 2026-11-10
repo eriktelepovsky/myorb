@@ -354,8 +354,11 @@ const watchEmailTops = () => document.querySelectorAll(".email-top").forEach((to
     }).observe(back);
   }
 });
-document.addEventListener("DOMContentLoaded", watchEmailTops);
-document.addEventListener("htmx:afterSettle", watchEmailTops);
+// Watched however the email came: also the next one, loaded ahead without htmx (welcome.js).
+document.addEventListener("DOMContentLoaded", () => {
+  watchEmailTops();
+  new MutationObserver(watchEmailTops).observe(document.body, { childList: true, subtree: true });
+});
 
 // A menu behind ⋮ (e.g. an email's other actions) closes on a click elsewhere or on its items.
 document.addEventListener("click", (event) => {
