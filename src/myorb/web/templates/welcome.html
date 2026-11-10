@@ -15,6 +15,8 @@
   <meta name="apple-mobile-web-app-title" content="{{ assistant }}">
   <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}?v={{ version }}">
   <link rel="stylesheet" href="{{ url_for('static', path='welcome.css') }}?v={{ version }}">
+  {# For a while only: what runs while the page is zoomed on a phone (diag.js). #}
+  <script src="{{ url_for('static', path='diag.js') }}?v={{ version }}"></script>
   {% include "scripts.html" %}
   {# After setup (tour.py), and for every visitor of the public demo. #}
   {% if tour or public_demo %}
