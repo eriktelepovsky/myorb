@@ -2439,13 +2439,18 @@ form.htmx-request .btn[type="submit"]::before {
 }
 
 /* The subject and the buttons stay at the top while the email scrolls. On a phone only the
-   buttons do: the subject, however long, goes up out of sight (app.js measures it). */
+   buttons do: the subject, however long, goes up out of sight (app.js measures it), and so
+   it does on a desktop when it is too long (.is-tall). */
 .email-top {
   position: sticky;
   z-index: 2;
   top: 0;
   padding-bottom: 14px;
   background: var(--bg);
+}
+
+.email-top.is-tall {
+  top: calc(-1 * var(--email-title-height, 0px));
 }
 
 @media (max-width: 760px) {
@@ -2578,6 +2583,10 @@ form.htmx-request .btn[type="submit"]::before {
   flex: none;
   width: 36px;
   padding: 0;
+}
+
+.email-top.is-tall.is-scrolled .email-actions .btn.email-back {
+  display: inline-flex;
 }
 
 @media (max-width: 760px) {
