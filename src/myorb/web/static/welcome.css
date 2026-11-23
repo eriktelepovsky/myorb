@@ -1855,13 +1855,16 @@ button.modal-stat[aria-pressed="true"] {
   border-bottom: 1px solid var(--line);
 }
 
+/* A subject going up out of sight goes all of it: the sticky place is measured below the
+   view's padding, so the head goes up by that padding as well, keeping only the 14px gap
+   above its buttons. */
 .page-view .email-top.is-tall {
-  top: calc(-1 * var(--view-top) - var(--email-title-height, 0px));
+  top: calc(14px - 2 * var(--view-top) - var(--email-title-height, 0px));
 }
 
 @media (max-width: 760px) {
   .page-view .email-top {
-    top: calc(-1 * var(--view-top) - var(--email-title-height, 0px));
+    top: calc(14px - 2 * var(--view-top) - var(--email-title-height, 0px));
   }
 }
 
