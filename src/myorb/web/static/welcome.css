@@ -1855,6 +1855,10 @@ button.modal-stat[aria-pressed="true"] {
   border-bottom: 1px solid var(--line);
 }
 
+.page-view .email-top.is-tall {
+  top: calc(-1 * var(--view-top) - var(--email-title-height, 0px));
+}
+
 @media (max-width: 760px) {
   .page-view .email-top {
     top: calc(-1 * var(--view-top) - var(--email-title-height, 0px));
