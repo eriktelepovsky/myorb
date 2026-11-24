@@ -3960,6 +3960,20 @@ body.driver-active .driver-overlay {
   gap: 8px;
 }
 
+.email-nav {
+  align-items: center;
+}
+
+.email-count {
+  padding-right: 4px;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 .email-step:disabled {
   opacity: 0.35;
   cursor: default;
