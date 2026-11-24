@@ -1,9 +1,10 @@
-{# The versions of myOrb, newest first, with what each changed; the running one marked. #}
+{# The versions of myOrb, newest first, with what each changed; the running one marked. Each
+   with when it was released and, once it ran here, when it started on this server. #}
 <div class="modal-head">
   <div class="modal-title">
     <span class="label" style="color: var(--info)">myOrb</span>
     <h2 id="releases-title">Versions</h2>
-    <span class="label">Running v{{ running }}</span>
+    <span class="label">Running v{{ running }}{% if running_since %} since {{ running_since | localtime("%-d %b %Y, %H:%M") }}{% endif %}</span>
   </div>
   <button type="button" class="icon-btn" data-close aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
 </div>
@@ -17,7 +18,8 @@
       <div class="release-head">
         <a class="release-version" href="{{ release.url }}" target="_blank" rel="noopener">v{{ release.version }}</a>
         {% if release.version == running %}<span class="badge badge-ok">Running</span>{% endif %}
-        {% if release.date %}<span class="label">{{ release.date | localtime("%-d %b %Y, %H:%M") }}</span>{% endif %}
+        {% if release.date %}<span class="label" title="Released">{{ release.date | localtime("%-d %b %Y, %H:%M") }}</span>{% endif %}
+        {% if release.started %}<span class="label" title="When it started on this server">· started here {{ release.started | localtime("%-d %b %Y, %H:%M") }}</span>{% endif %}
       </div>
       {% if release.changes %}
       <ul class="release-changes">

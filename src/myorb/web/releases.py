@@ -4,12 +4,15 @@ version under the welcome screen.
 A release does not change once it is made, so the notes are read once for each version myOrb
 runs (at its start, after an upgrade) and kept in the data directory; read again only when
 reading them failed.
+
+When each version first started on this server is kept there too (started.json), so the list
+says when it came to run here, not only when it was released.
 """
 
 import json
 import logging
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -91,21 +94,52 @@ async def fetch(app: FastAPI) -> list[dict[str, Any]] | None:
     return found
 
 
-def _dated(release: dict[str, Any]) -> dict[str, Any]:
+def _started_file(app: FastAPI) -> Path:
+    return app.state.settings.data_dir / "started.json"
+
+
+def started(app: FastAPI) -> dict[str, str]:
+    """When each version first started here: {"0.92.0": "2026-11-24T10:02:00+00:00"}."""
+    try:
+        found = json.loads(_started_file(app).read_text())
+    except (OSError, ValueError):
+        return {}
+    return found if isinstance(found, dict) else {}
+
+
+def mark_started(app: FastAPI, now: datetime | None = None) -> None:
+    """Notes that the running version started, the first time it does: a restart of the same
+    version (a deploy of something else) keeps the time it came."""
+    known = started(app)
+    if __version__ in known:
+        return
+    known[__version__] = (now or datetime.now(UTC)).isoformat()
+    try:
+        _started_file(app).write_text(json.dumps(known))
+    except OSError:
+        logger.exception("Keeping when the version started failed")
+
+
+def _dated(release: dict[str, Any], since: dict[str, str]) -> dict[str, Any]:
     published = release.get("published")
     date = datetime.fromisoformat(published.replace("Z", "+00:00")) if published else None
-    return {**release, "date": date}
+    here = since.get(release["version"])
+    return {**release, "date": date, "started": datetime.fromisoformat(here) if here else None}
 
 
 @router.get("/releases", response_class=HTMLResponse)
 async def release_notes(request: Request) -> Response:
     found = await fetch(request.app)
+    since = started(request.app)
     return request.app.state.templates.TemplateResponse(
         request,
         "releases.html",
         {
-            "releases": [_dated(r) for r in found] if found is not None else None,
+            "releases": [_dated(r, since) for r in found] if found is not None else None,
             "running": __version__,
+            "running_since": datetime.fromisoformat(since[__version__])
+            if __version__ in since
+            else None,
             "releases_page": RELEASES_PAGE,
         },
     )
