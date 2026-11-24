@@ -360,3 +360,8 @@ def test_versions_with_what_changed(make_client: MakeClient):
     assert len(calls) == 1
     kept = client.app.state.settings.data_dir / "releases.json"
     assert releases.__version__ in kept.read_text()
+    # When it started here: in the header and by the version, kept across restarts.
+    assert " since " in page and "· started here " in page
+    first = releases.started(client.app)[__version__]
+    releases.mark_started(client.app)
+    assert releases.started(client.app)[__version__] == first
