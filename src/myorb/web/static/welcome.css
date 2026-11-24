@@ -3951,3 +3951,22 @@ body.driver-active .driver-overlay {
 #app :has(> .driver-active-element):not(.welcome-main) {
   overflow: visible !important;
 }
+
+/* An email over the details: the previous and next one beside the × in its title. A phone
+   swipes to them instead. */
+.email-nav {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.email-step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 760px) {
+  .email-step {
+    display: none;
+  }
+}

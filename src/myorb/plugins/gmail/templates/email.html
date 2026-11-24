@@ -15,8 +15,11 @@
 <div class="email-top">
 <div class="page-title email-title">
   <div><div class="label">Email · {{ account.email }}</div><h1 class="email-subject">{{ subject }}</h1></div>
-{% macro back(class) %}{% if in_view %}<button type="button" class="{{ class }}" data-close-view aria-label="Back to the emails"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>{% else %}<a class="{{ class }}" href="/#detail-gmail-inbox" aria-label="Back to the emails"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>{% endif %}{% endmacro %}
-  {{ back("icon-btn") }}
+{# Over the details the window closes (×); beside it, in the title, the previous and next email,
+   as ← → do (welcome.js; not on a phone, which swipes). On its own page, back to the emails. #}
+{% macro line_icon(path) %}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ path }}"/></svg>{% endmacro %}
+{% macro back(class) %}{% if in_view %}<button type="button" class="{{ class }}" data-close-view aria-label="Close" title="Close (Esc)">{{ line_icon("M18 6 6 18M6 6l12 12") }}</button>{% else %}<a class="{{ class }}" href="/#detail-gmail-inbox" aria-label="Back to the emails"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>{% endif %}{% endmacro %}
+  {% if in_view %}<span class="email-nav"><button type="button" class="icon-btn email-step" data-view-step="-1" aria-label="Previous email" title="Previous email (←)">{{ line_icon("M15 18l-6-6 6-6") }}</button><button type="button" class="icon-btn email-step" data-view-step="1" aria-label="Next email" title="Next email (→)">{{ line_icon("M9 18l6-6-6-6") }}</button>{{ back("icon-btn") }}</span>{% else %}{{ back("icon-btn") }}{% endif %}
 </div>
 
 <div class="email-actions panel-narrow">
